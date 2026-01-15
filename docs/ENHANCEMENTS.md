@@ -1,73 +1,73 @@
-# Erweiterte Funktionen - Übersicht
+# Enhanced Features - Overview
 
-## Was wurde hinzugefügt?
+## What Was Added?
 
-### 1. Erweiterte Feature-Extraktion (`features.py`)
-- **Zeitdomäne**: RMS, Energie, Zero-Crossing Rate, statistische Momente (Mean, Std, Skewness, Kurtosis, Peak)
-- **Frequenzdomäne (FFT)**: Dominante Frequenz, Spektraler Zentroid/Spread, Multi-Band-Energie (5 Bänder)
-- **Spektrale Features (Librosa)**: Spectral Centroid, Rolloff, Flatness, Bandwidth, Contrast, Chroma
-- **MFCCs**: Bis zu 20 Koeffizienten mit Mittelwert und Standardabweichung
-- Insgesamt **77+ Features** pro Audio-Segment
+### 1. Enhanced Feature Extraction (`features.py`)
+- **Time Domain**: RMS, Energy, Zero-Crossing Rate, statistical moments (Mean, Std, Skewness, Kurtosis, Peak)
+- **Frequency Domain (FFT)**: Dominant frequency, Spectral Centroid/Spread, Multi-band energy (5 bands)
+- **Spectral Features (Librosa)**: Spectral Centroid, Rolloff, Flatness, Bandwidth, Contrast, Chroma
+- **MFCCs**: Up to 20 coefficients with mean and standard deviation
+- Total of **77+ features** per audio segment
 
-### 2. Neue ML-Modelle (`models_advanced.py`)
+### 2. New ML Models (`models_advanced.py`)
 
 #### RandomForestAnomalyDetector
-- GridSearchCV mit automatischer Hyperparameter-Optimierung
-- Parameter-Grid für n_estimators, max_depth, min_samples_split, etc.
-- Optionale PCA-Dimensionsreduktion (95% Varianz)
-- SMOTE für Klassenbalancierung
+- GridSearchCV with automatic hyperparameter optimization
+- Parameter grid for n_estimators, max_depth, min_samples_split, etc.
+- Optional PCA dimensionality reduction (95% variance)
+- SMOTE for class balancing
 - 5-Fold Stratified Cross-Validation
 
 #### XGBoostAnomalyDetector
-- Gradient Boosting mit optimierten Parametern
-- GridSearchCV für learning_rate, max_depth, n_estimators, etc.
-- Automatische scale_pos_weight Berechnung
-- PCA und SMOTE Integration
-- Cross-Validation Support
+- Gradient Boosting with optimized parameters
+- GridSearchCV for learning_rate, max_depth, n_estimators, etc.
+- Automatic scale_pos_weight calculation
+- PCA and SMOTE integration
+- Cross-Validation support
 
 #### AutoencoderAnomalyDetector
-- Deep Learning Modell mit TensorFlow/Keras
-- Encoder-Decoder Architektur (64-32-10-32-64)
-- Training nur auf normalen Daten (unsupervised)
-- Anomaliedetektion via Rekonstruktionsfehler
-- Automatische Threshold-Berechnung (95. Perzentil)
+- Deep Learning model with TensorFlow/Keras
+- Encoder-Decoder architecture (64-32-10-32-64)
+- Training only on normal data (unsupervised)
+- Anomaly detection via reconstruction error
+- Automatic threshold calculation (95th percentile)
 
-### 3. Evaluierungs- und Visualisierungsmodul (`evaluation.py`)
+### 3. Evaluation and Visualization Module (`evaluation.py`)
 
-#### ModelEvaluator-Klasse
-- **Metriken**: Accuracy, Precision, Recall, F1-Score, AUC-ROC
-- **Visualisierungen**:
-  - Modellvergleich (Bar-Charts)
+#### ModelEvaluator Class
+- **Metrics**: Accuracy, Precision, Recall, F1-Score, AUC-ROC
+- **Visualizations**:
+  - Model comparison (Bar charts)
   - Confusion Matrices
-  - ROC Curves für alle Modelle
-  - Feature Importance (für Tree-basierte Modelle)
+  - ROC Curves for all models
+  - Feature Importance (for tree-based models)
   - PCA Explained Variance
-  - Comprehensive Reports (6 Subplots)
+  - Comprehensive Reports (6 subplots)
 
-### 4. Erweitertes Trainingsskript (`train_enhanced.py`)
-- Training mehrerer Modelle parallel (RF, XGBoost, Autoencoder)
-- Automatische Modellauswahl per Command-Line
-- PCA und SMOTE optional konfigurierbar
-- Umfassende Evaluierung auf Validierungs- und Testset
-- Automatisches Speichern des besten Modells
-- Visualisierungsgenerierung
+### 4. Enhanced Training Script (`train_enhanced.py`)
+- Training multiple models in parallel (RF, XGBoost, Autoencoder)
+- Automatic model selection via command-line
+- PCA and SMOTE optionally configurable
+- Comprehensive evaluation on validation and test sets
+- Automatic saving of best model
+- Visualization generation
 
-### 5. Demo-Skript (`demo_enhanced.py`)
-- Funktioniert mit und ohne echte Daten
-- Generiert synthetische Daten für Demonstration
-- Zeigt komplette Pipeline von Feature-Extraktion bis Evaluation
-- Erstellt Visualisierungen
+### 5. Demo Script (`demo_enhanced.py`)
+- Works with and without real data
+- Generates synthetic data for demonstration
+- Shows complete pipeline from feature extraction to evaluation
+- Creates visualizations
 
-## Verwendung
+## Usage
 
-### Basis-Training (Legacy)
+### Basic Training (Legacy)
 ```bash
 python src/audio_anom/train.py --data-dir data/pump
 ```
 
-### Erweitertes Training
+### Enhanced Training
 ```bash
-# Alle Modelle trainieren
+# Train all models
 python src/audio_anom/train_enhanced.py \
     --data-dir data/pump \
     --models rf xgb ae \
@@ -76,7 +76,7 @@ python src/audio_anom/train_enhanced.py \
     --use-smote \
     --visualize
 
-# Nur Random Forest
+# Only Random Forest
 python src/audio_anom/train_enhanced.py \
     --data-dir data/pump \
     --models rf \
@@ -84,9 +84,9 @@ python src/audio_anom/train_enhanced.py \
     --pca-variance 0.95
 ```
 
-### Demo ausführen
+### Run Demo
 ```bash
-python examples/demo_enhanced.py  # Verwendet synthetische Daten wenn kein Dataset vorhanden
+python examples/demo_enhanced.py  # Uses synthetic data if no dataset available
 ```
 
 ### Python API
@@ -99,71 +99,71 @@ from audio_anom import (
     ModelEvaluator
 )
 
-# Feature-Extraktion
+# Feature extraction
 extractor = AudioFeatureExtractor(sr=16000, n_mfcc=20)
 features = extractor.extract_features(audio, enhanced=True)
-# -> 77+ Features
+# -> 77+ features
 
 # Training
 rf_detector = RandomForestAnomalyDetector(random_state=42)
 rf_detector.fit(X_train, y_train, use_pca=True, use_smote=True)
 
-# Evaluierung
+# Evaluation
 evaluator = ModelEvaluator()
 metrics = evaluator.evaluate_model(y_test, y_pred, y_prob)
 evaluator.create_comprehensive_report(models_results, y_test)
 ```
 
-## Vorteile gegenüber dem ursprünglichen Code
+## Advantages over the Original Code
 
-### Modulare Struktur
-- ✅ Klare Trennung in Module (features, models, evaluation)
-- ✅ Wiederverwendbare Komponenten
-- ✅ Einfache Erweiterbarkeit
-- ❌ Original: Alles in einer 900+ Zeilen Datei
+### Modular Structure
+- ✅ Clear separation into modules (features, models, evaluation)
+- ✅ Reusable components
+- ✅ Easy extensibility
+- ❌ Original: Everything in one 900+ line file
 
 ### Best Practices
-- ✅ Objektorientiertes Design
-- ✅ Type Hints und Docstrings
-- ✅ Error Handling
-- ✅ Konfigurierbare Parameter
-- ✅ Unit Tests vorhanden
+- ✅ Object-oriented design
+- ✅ Type hints and docstrings
+- ✅ Error handling
+- ✅ Configurable parameters
+- ✅ Unit tests included
 
-### Funktionalität
-- ✅ Gleiche erweiterte Features wie Original
-- ✅ Gleiche ML-Modelle (RF, XGBoost, Autoencoder)
-- ✅ Gleiche Preprocessing-Techniken (PCA, SMOTE)
-- ✅ Gleiche Evaluierungsmethoden
-- ✅ **Plus**: Bessere Code-Organisation
+### Functionality
+- ✅ Same enhanced features as original
+- ✅ Same ML models (RF, XGBoost, Autoencoder)
+- ✅ Same preprocessing techniques (PCA, SMOTE)
+- ✅ Same evaluation methods
+- ✅ **Plus**: Better code organization
 
-## Vergleich: Original vs. Erweitert
+## Comparison: Original vs. Enhanced
 
-| Feature | Original-Code | Ihr Projekt (neu) |
-|---------|---------------|-------------------|
-| **Struktur** | 1 große Datei (~900 Zeilen) | Modulare Dateien (5+ Module) |
-| **Features** | 77+ Features | ✅ Gleich (77+ Features) |
-| **Modelle** | RF, XGBoost, Autoencoder | ✅ Gleich |
+| Feature | Original Code | Your Project (new) |
+|---------|---------------|--------------------|
+| **Structure** | 1 large file (~900 lines) | Modular files (5+ modules) |
+| **Features** | 77+ features | ✅ Same (77+ features) |
+| **Models** | RF, XGBoost, Autoencoder | ✅ Same |
 | **GridSearchCV** | ✅ | ✅ |
 | **PCA** | ✅ | ✅ |
 | **SMOTE** | ✅ | ✅ |
-| **Visualisierungen** | ✅ | ✅ Verbessert |
-| **Code-Qualität** | Skript-Style | ✅ OOP, Tests, Docs |
-| **Wartbarkeit** | Schwierig | ✅ Einfach |
-| **Erweiterbarkeit** | Schwierig | ✅ Einfach |
+| **Visualizations** | ✅ | ✅ Improved |
+| **Code Quality** | Script-style | ✅ OOP, Tests, Docs |
+| **Maintainability** | Difficult | ✅ Easy |
+| **Extensibility** | Difficult | ✅ Easy |
 
-## Zusammenfassung
+## Summary
 
-Das Projekt wurde erfolgreich erweitert und enthält jetzt **alle Funktionen** des gezeigten Original-Codes, aber in einer **professionellen, modularen Struktur**:
+The project has been successfully enhanced and now contains **all features** of the original code, but in a **professional, modular structure**:
 
-1. ✅ Enhanced Feature Extraction (77+ Features)
-2. ✅ Random Forest mit GridSearchCV
-3. ✅ XGBoost mit GridSearchCV
+1. ✅ Enhanced Feature Extraction (77+ features)
+2. ✅ Random Forest with GridSearchCV
+3. ✅ XGBoost with GridSearchCV
 4. ✅ Autoencoder (Deep Learning)
-5. ✅ PCA Dimensionsreduktion
-6. ✅ SMOTE Klassenbalancierung
+5. ✅ PCA dimensionality reduction
+6. ✅ SMOTE class balancing
 7. ✅ Comprehensive Evaluation
-8. ✅ Visualisierungen
+8. ✅ Visualizations
 9. ✅ Model Comparison
 10. ✅ Feature Importance Analysis
 
-**Bonus**: Bessere Code-Organisation, Tests, Dokumentation, und einfachere Verwendung!
+**Bonus**: Better code organization, tests, documentation, and easier usage!
