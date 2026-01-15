@@ -5,6 +5,34 @@ import soundfile as sf
 from pathlib import Path
 
 
+def build_feature_vector(features):
+    """
+    Build feature vector from extracted features dictionary.
+
+    Args:
+        features: Dictionary of extracted features from AudioFeatureExtractor
+
+    Returns:
+        Flattened feature vector as numpy array
+    """
+    return np.concatenate(
+        [
+            features["mel_spec_mean"],
+            features["mel_spec_std"],
+            features["mfcc_mean"],
+            features["mfcc_std"],
+            [
+                features["mean"],
+                features["std"],
+                features["max"],
+                features["min"],
+                features["rms"],
+                features["zcr"],
+            ],
+        ]
+    )
+
+
 class AudioDataProcessor:
     """Process and load audio data for anomaly detection."""
 
@@ -122,23 +150,7 @@ class AudioDataProcessor:
 
         for file_path, audio, label in dataset:
             features = feature_extractor.extract_features(audio)
-            # Concatenate numeric features
-            feature_vector = np.concatenate(
-                [
-                    features["mel_spec_mean"],
-                    features["mel_spec_std"],
-                    features["mfcc_mean"],
-                    features["mfcc_std"],
-                    [
-                        features["mean"],
-                        features["std"],
-                        features["max"],
-                        features["min"],
-                        features["rms"],
-                        features["zcr"],
-                    ],
-                ]
-            )
+            feature_vector = build_feature_vector(features)
             features_list.append(feature_vector)
             labels.append(1 if label == "anomaly" else 0)
 

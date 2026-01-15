@@ -3,12 +3,16 @@
 import argparse
 import sys
 from pathlib import Path
-import numpy as np
 
 # Add src to path for standalone execution
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from audio_anom import AudioFeatureExtractor, AudioDataProcessor, AnomalyDetector  # noqa: E402
+from audio_anom import (  # noqa: E402
+    AudioFeatureExtractor,
+    AudioDataProcessor,
+    AnomalyDetector,
+    build_feature_vector,
+)
 
 
 def predict(model_path, audio_path, sample_rate=16000):
@@ -45,23 +49,8 @@ def predict(model_path, audio_path, sample_rate=16000):
     print("Extracting features...")
     features = feature_extractor.extract_features(audio)
 
-    # Prepare feature vector
-    feature_vector = np.concatenate(
-        [
-            features["mel_spec_mean"],
-            features["mel_spec_std"],
-            features["mfcc_mean"],
-            features["mfcc_std"],
-            [
-                features["mean"],
-                features["std"],
-                features["max"],
-                features["min"],
-                features["rms"],
-                features["zcr"],
-            ],
-        ]
-    ).reshape(1, -1)
+    # Prepare feature vector using shared utility
+    feature_vector = build_feature_vector(features).reshape(1, -1)
 
     # Predict
     print("Running prediction...")

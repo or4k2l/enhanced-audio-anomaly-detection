@@ -155,7 +155,9 @@ class AnomalyDetector:
 
         try:
             metrics["auc"] = roc_auc_score(y_true, -scores)
-        except ValueError:
+        except ValueError as e:
+            # AUC calculation fails when only one class is present
             metrics["auc"] = 0.0
+            print(f"Warning: Could not calculate AUC - {e}")
 
         return metrics
