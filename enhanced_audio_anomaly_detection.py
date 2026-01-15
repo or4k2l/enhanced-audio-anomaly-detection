@@ -1,4 +1,4 @@
-# Enhanced Audio Anomaly Detection 
+# Enhanced Audio Anomaly Detection
 # Filename: enhanced_audio_anomaly_detection.py
 # Description: Performs feature extraction, training,
 #              evaluation and export of anomaly detection models for pump sounds.
@@ -13,8 +13,8 @@ print("=" * 80)
 print("\n[1/10] Installing libraries...")
 # Note: In a script you may want to avoid running pip install inline.
 # Uncomment and run manually if needed:
-# !pip install -q kagglehub numpy pandas scipy scikit-learn matplotlib seaborn \
-#     librosa soundfile imbalanced-learn xgboost tensorflow
+# !pip install -q numpy pandas scipy scikit-learn matplotlib seaborn \
+#     librosa soundfile xgboost tensorflow
 
 # ============================================================================
 # 1. IMPORTS
@@ -51,8 +51,6 @@ from sklearn.metrics import (
     precision_recall_curve
 )
 from sklearn.preprocessing import StandardScaler
-from sklearn.decomposition import PCA
-from imblearn.over_sampling import SMOTE
 from xgboost import XGBClassifier
 
 # Deep Learning
