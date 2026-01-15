@@ -10,6 +10,7 @@ from .models import (
     AutoencoderAnomalyDetector,
 )
 from .evaluation import ModelEvaluator
+from .export import ModelExporter
 
 __all__ = [
     "AudioFeatureExtractor",
@@ -18,5 +19,6 @@ __all__ = [
     "XGBoostAnomalyDetector",
     "AutoencoderAnomalyDetector",
     "ModelEvaluator",
+    "ModelExporter",
     "build_feature_vector",
 ]

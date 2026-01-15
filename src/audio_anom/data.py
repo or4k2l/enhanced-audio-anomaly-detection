@@ -1,7 +1,9 @@
 """Data processing and loading utilities."""
 
 import numpy as np
+import pandas as pd
 import soundfile as sf
+import librosa
 from pathlib import Path
 
 
@@ -155,3 +157,102 @@ class AudioDataProcessor:
             labels.append(1 if label == "anomaly" else 0)
 
         return np.array(features_list), np.array(labels)
+
+    def process_dataset_with_metadata(
+        self,
+        base_path,
+        segment_length_sec=1,
+        max_audio_length_sec=10,
+        feature_extractor=None
+    ):
+        """
+        Process entire dataset with metadata tracking (pump_id, file_id, segment_id).
+        
+        This matches the enhanced_audio_anomaly_detection.py approach.
+        
+        Args:
+            base_path: Base directory containing 'normal' and 'abnormal' subdirectories
+            segment_length_sec: Length of each segment in seconds
+            max_audio_length_sec: Maximum audio length to process per file
+            feature_extractor: AudioFeatureExtractor instance (required)
+            
+        Returns:
+            pandas DataFrame with features and metadata columns
+        """
+        if feature_extractor is None:
+            raise ValueError("feature_extractor is required")
+        
+        all_data = []
+        file_count = {'normal': 0, 'abnormal': 0}
+        segment_length_samples = segment_length_sec * self.sr
+        max_samples = max_audio_length_sec * self.sr
+        
+        for condition in ['normal', 'abnormal']:
+            label = 0 if condition == 'normal' else 1
+            condition_path = Path(base_path) / condition
+            
+            if not condition_path.exists():
+                print(f"  ⚠ Path not found: {condition_path}")
+                continue
+            
+            # Find all .wav files
+            wav_files = list(condition_path.rglob('*.wav'))
+            print(f"  - {condition}: {len(wav_files)} files found")
+            
+            for file_idx, file_path in enumerate(wav_files):
+                try:
+                    # Extract pump_id from path (e.g., id_00, id_02, etc.)
+                    pump_id = 'unknown'
+                    for part in file_path.parts:
+                        if part.startswith('id_'):
+                            pump_id = part
+                            break
+                    
+                    # Load audio
+                    audio, sr = sf.read(file_path)
+                    if audio.ndim > 1:
+                        audio = audio[:, 0]  # Convert to mono
+                    if sr != self.sr:
+                        audio = librosa.resample(y=audio, orig_sr=sr, target_sr=self.sr)
+                    
+                    # Limit to max length
+                    audio = audio[:max_samples]
+                    
+                    # Segment audio
+                    segment_id = 0
+                    for i in range(0, len(audio), segment_length_samples):
+                        segment = audio[i:i + segment_length_samples]
+                        
+                        if len(segment) == segment_length_samples:
+                            features = feature_extractor.extract_features(segment, enhanced=True)
+                            
+                            if features is not None:
+                                # Add metadata
+                                features['label'] = label
+                                features['pump_id'] = pump_id
+                                features['file_id'] = f"{condition}_{file_idx}"
+                                features['segment_id'] = segment_id
+                                features['condition'] = condition
+                                all_data.append(features)
+                                segment_id += 1
+                    
+                    file_count[condition] += 1
+                    
+                    if (file_idx + 1) % 50 == 0:
+                        print(f"    Progress: {file_idx + 1}/{len(wav_files)} files")
+                        
+                except Exception as e:
+                    print(f"  ✗ Error processing {file_path.name}: {e}")
+                    continue
+        
+        df = pd.DataFrame(all_data)
+        print(f"\n✓ Processing complete:")
+        print(f"  - Normal files: {file_count['normal']}")
+        print(f"  - Abnormal files: {file_count['abnormal']}")
+        print(f"  - Total segments: {len(df)}")
+        if len(df) > 0:
+            metadata_cols = ['label', 'pump_id', 'file_id', 'segment_id', 'condition']
+            print(f"  - Features per segment: {len(df.columns) - len(metadata_cols)}")
+        
+        return df
+

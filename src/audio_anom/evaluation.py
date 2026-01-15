@@ -397,3 +397,319 @@ class ModelEvaluator:
         plt.show()
         
         return df_results
+
+    def ablation_study(
+        self,
+        X_train,
+        y_train,
+        X_test,
+        y_test,
+        feature_cols,
+        feature_groups,
+        scaler,
+        baseline_f1,
+        random_state=42
+    ):
+        """
+        Perform ablation study to determine feature group importance.
+        
+        Args:
+            X_train: Training features (DataFrame)
+            y_train: Training labels
+            X_test: Test features (DataFrame)
+            y_test: Test labels
+            feature_cols: List of all feature column names
+            feature_groups: Dict mapping group names to lists of feature names
+            scaler: StandardScaler instance
+            baseline_f1: Baseline F1-score with all features
+            random_state: Random state for reproducibility
+            
+        Returns:
+            DataFrame with ablation results
+        """
+        from sklearn.decomposition import PCA
+        from sklearn.ensemble import RandomForestClassifier
+        from imblearn.over_sampling import SMOTE
+        
+        print(f"\n{'='*80}")
+        print("ABLATION STUDY - Feature Group Importance")
+        print(f"{'='*80}")
+        
+        ablation_results = []
+        smote = SMOTE(random_state=random_state)
+        
+        for group_name, group_features in feature_groups.items():
+            # Remove this feature group
+            remaining_features = [f for f in feature_cols if f not in group_features]
+            
+            if len(remaining_features) == 0:
+                continue
+            
+            print(f"\nTesting without {group_name} ({len(group_features)} features)...")
+            
+            # Train with reduced features
+            X_train_ablation = X_train[remaining_features]
+            X_test_ablation = X_test[remaining_features]
+            
+            # Scale & PCA
+            X_train_scaled_abl = scaler.fit_transform(X_train_ablation.fillna(0))
+            X_test_scaled_abl = scaler.transform(X_test_ablation.fillna(0))
+            
+            n_components = min(10, len(remaining_features))
+            pca_abl = PCA(n_components=n_components, random_state=random_state)
+            X_train_pca_abl = pca_abl.fit_transform(X_train_scaled_abl)
+            X_test_pca_abl = pca_abl.transform(X_test_scaled_abl)
+            
+            # SMOTE
+            try:
+                X_train_res_abl, y_train_res_abl = smote.fit_resample(X_train_pca_abl, y_train)
+            except:
+                X_train_res_abl, y_train_res_abl = X_train_pca_abl, y_train
+            
+            # Train quick model
+            rf_ablation = RandomForestClassifier(
+                n_estimators=100,
+                random_state=random_state,
+                n_jobs=-1
+            )
+            rf_ablation.fit(X_train_res_abl, y_train_res_abl)
+            
+            # Evaluate
+            y_pred_abl = rf_ablation.predict(X_test_pca_abl)
+            _, _, f1_abl, _ = precision_recall_fscore_support(
+                y_test, y_pred_abl, average='binary', zero_division=0
+            )
+            
+            ablation_results.append({
+                'RemovedGroup': group_name,
+                'NumFeatures': len(group_features),
+                'F1-Score': f1_abl,
+                'PerformanceDrop': baseline_f1 - f1_abl
+            })
+        
+        df_ablation = pd.DataFrame(ablation_results).sort_values(
+            'PerformanceDrop', ascending=False
+        )
+        
+        print("\n" + "="*80)
+        print(df_ablation.to_string(index=False))
+        print("\nInterpretation: The larger the performance drop, the more important the feature group")
+        
+        return df_ablation
+
+    def leave_one_pump_out_cv(
+        self,
+        df_full,
+        feature_cols,
+        scaler,
+        random_state=42
+    ):
+        """
+        Perform Leave-One-Pump-Out cross-validation for robustness testing.
+        
+        Tests generalization to completely unseen pumps.
+        
+        Args:
+            df_full: Full dataset DataFrame with 'pump_id' and 'label' columns
+            feature_cols: List of feature column names
+            scaler: StandardScaler instance
+            random_state: Random state for reproducibility
+            
+        Returns:
+            DataFrame with LOPO results
+        """
+        from sklearn.decomposition import PCA
+        from sklearn.ensemble import RandomForestClassifier
+        from imblearn.over_sampling import SMOTE
+        
+        print(f"\n{'='*80}")
+        print("LEAVE-ONE-PUMP-OUT CROSS-VALIDATION")
+        print(f"{'='*80}")
+        
+        unique_pumps = df_full['pump_id'].unique()
+        
+        if len(unique_pumps) <= 2:
+            print("Not enough unique pumps for LOPO CV")
+            return None
+        
+        lopo_results = []
+        smote = SMOTE(random_state=random_state)
+        
+        for test_pump in unique_pumps:
+            print(f"\nTesting on pump: {test_pump}...")
+            
+            # Split by pump ID
+            train_mask = df_full['pump_id'] != test_pump
+            test_mask = df_full['pump_id'] == test_pump
+            
+            X_lopo_train = df_full[train_mask][feature_cols].fillna(0)
+            y_lopo_train = df_full[train_mask]['label']
+            X_lopo_test = df_full[test_mask][feature_cols].fillna(0)
+            y_lopo_test = df_full[test_mask]['label']
+            
+            if len(y_lopo_test) == 0 or len(y_lopo_test.unique()) < 2:
+                print(f"  Skipping {test_pump}: insufficient test data")
+                continue
+            
+            # Preprocessing
+            X_lopo_train_scaled = scaler.fit_transform(X_lopo_train)
+            X_lopo_test_scaled = scaler.transform(X_lopo_test)
+            
+            n_components = min(15, X_lopo_train_scaled.shape[1])
+            pca_lopo = PCA(n_components=n_components, random_state=random_state)
+            X_lopo_train_pca = pca_lopo.fit_transform(X_lopo_train_scaled)
+            X_lopo_test_pca = pca_lopo.transform(X_lopo_test_scaled)
+            
+            # SMOTE
+            try:
+                X_lopo_train_res, y_lopo_train_res = smote.fit_resample(
+                    X_lopo_train_pca, y_lopo_train
+                )
+            except:
+                X_lopo_train_res, y_lopo_train_res = X_lopo_train_pca, y_lopo_train
+            
+            # Train
+            rf_lopo = RandomForestClassifier(
+                n_estimators=100,
+                random_state=random_state,
+                n_jobs=-1
+            )
+            rf_lopo.fit(X_lopo_train_res, y_lopo_train_res)
+            
+            # Evaluate
+            y_pred_lopo = rf_lopo.predict(X_lopo_test_pca)
+            acc_lopo = accuracy_score(y_lopo_test, y_pred_lopo)
+            _, _, f1_lopo, _ = precision_recall_fscore_support(
+                y_lopo_test, y_pred_lopo, average='binary', zero_division=0
+            )
+            
+            lopo_results.append({
+                'TestPump': test_pump,
+                'TestSamples': len(y_lopo_test),
+                'Accuracy': acc_lopo,
+                'F1-Score': f1_lopo
+            })
+        
+        if not lopo_results:
+            return None
+        
+        df_lopo = pd.DataFrame(lopo_results)
+        
+        print("\n" + "="*80)
+        print(df_lopo.to_string(index=False))
+        print(f"\nAverage Accuracy: {df_lopo['Accuracy'].mean():.4f} (±{df_lopo['Accuracy'].std():.4f})")
+        print(f"Average F1-Score: {df_lopo['F1-Score'].mean():.4f} (±{df_lopo['F1-Score'].std():.4f})")
+        print("\nInterpretation: Tests generalization to completely unseen pumps")
+        
+        return df_lopo
+
+    def plot_accuracy_by_pump(
+        self,
+        y_test,
+        y_pred,
+        pump_ids,
+        overall_accuracy,
+        save_path=None
+    ):
+        """
+        Plot accuracy breakdown by pump ID.
+        
+        Args:
+            y_test: True labels
+            y_pred: Predicted labels
+            pump_ids: Pump IDs for test samples
+            overall_accuracy: Overall accuracy score
+            save_path: Path to save plot (optional)
+        """
+        test_df = pd.DataFrame({
+            'true': y_test.values if hasattr(y_test, 'values') else y_test,
+            'pred': y_pred,
+            'pump_id': pump_ids.values if hasattr(pump_ids, 'values') else pump_ids
+        })
+        test_df['correct'] = test_df['true'] == test_df['pred']
+        
+        accuracy_by_pump = test_df.groupby('pump_id')['correct'].mean()
+        
+        plt.figure(figsize=(10, 6))
+        accuracy_by_pump.plot(kind='bar', color='skyblue', edgecolor='navy')
+        plt.title('Accuracy by Pump ID', fontsize=14, fontweight='bold')
+        plt.xlabel('Pump ID')
+        plt.ylabel('Accuracy')
+        plt.ylim(0, 1.05)
+        plt.axhline(y=overall_accuracy, color='red', linestyle='--', 
+                   label=f'Overall: {overall_accuracy:.3f}')
+        plt.legend()
+        plt.grid(True, alpha=0.3, axis='y')
+        plt.xticks(rotation=45)
+        plt.tight_layout()
+        
+        if save_path:
+            plt.savefig(save_path, dpi=300, bbox_inches='tight')
+        
+        plt.show()
+
+
+    def plot_eda(self, df, save_dir=None):
+        """
+        Create comprehensive exploratory data analysis plots.
+        
+        Args:
+            df: DataFrame with features, labels, and metadata
+            save_dir: Directory to save plots (optional)
+        """
+        fig, axes = plt.subplots(2, 2, figsize=(15, 10))
+        
+        # 1. Label distribution
+        df['label'].value_counts().plot(
+            kind='bar', ax=axes[0, 0], color=['green', 'red']
+        )
+        axes[0, 0].set_title('Label Distribution', fontsize=12, fontweight='bold')
+        axes[0, 0].set_xlabel('Label (0=Normal, 1=Anomaly)')
+        axes[0, 0].set_ylabel('Number of Segments')
+        axes[0, 0].grid(True, alpha=0.3)
+        
+        # 2. Example feature distribution: RMS
+        feature_cols = [
+            col for col in df.columns 
+            if col not in ['label', 'pump_id', 'file_id', 'segment_id', 'condition']
+        ]
+        if 'rms' in df.columns:
+            df.boxplot(column='rms', by='label', ax=axes[0, 1])
+            axes[0, 1].set_title('RMS Distribution by Label')
+            axes[0, 1].set_xlabel('Label')
+            axes[0, 1].set_ylabel('RMS')
+            axes[0, 1].get_figure().suptitle('')  # Remove default title
+        
+        # 3. Correlation of top features
+        top_features = feature_cols[:20]  # First 20 features
+        if len(top_features) > 1:
+            corr = df[top_features].corr()
+            sns.heatmap(
+                corr, ax=axes[1, 0], cmap='coolwarm', center=0,
+                square=True, cbar_kws={"shrink": 0.8}
+            )
+            axes[1, 0].set_title('Correlation Matrix (Top 20 Features)')
+        
+        # 4. Pump ID distribution
+        if 'pump_id' in df.columns:
+            pump_label_counts = df.groupby(['pump_id', 'label']).size().unstack(fill_value=0)
+            pump_label_counts.plot(
+                kind='bar', ax=axes[1, 1], stacked=True, color=['green', 'red']
+            )
+            axes[1, 1].set_title('Segments per Pump ID and Label')
+            axes[1, 1].set_xlabel('Pump ID')
+            axes[1, 1].set_ylabel('Number of Segments')
+            axes[1, 1].legend(['Normal', 'Anomaly'])
+            axes[1, 1].tick_params(axis='x', rotation=45)
+        
+        plt.tight_layout()
+        
+        if save_dir:
+            import os
+            os.makedirs(save_dir, exist_ok=True)
+            plt.savefig(
+                os.path.join(save_dir, 'eda_analysis.png'),
+                dpi=300, bbox_inches='tight'
+            )
+        
+        plt.show()
