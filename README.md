@@ -51,11 +51,11 @@ Advanced audio anomaly detection system for industrial equipment monitoring usin
 
 ## Usage Examples
 
-### Training Enhanced Models
+### Training Models
 
 ```bash
 # Train all models (Random Forest, XGBoost, Autoencoder)
-python src/audio_anom/train_enhanced.py \
+python src/audio_anom/train.py \
     --data-dir data/pump \
     --output-dir models \
     --models rf xgb ae \
@@ -65,7 +65,7 @@ python src/audio_anom/train_enhanced.py \
     --visualize
 
 # Train specific model with custom parameters
-python src/audio_anom/train_enhanced.py \
+python src/audio_anom/train.py \
     --data-dir data/pump \
     --models rf \
     --n-mfcc 20 \
@@ -73,24 +73,14 @@ python src/audio_anom/train_enhanced.py \
     --n-splits 5
 ```
 
-### Running the Enhanced Demo
+### Running the Demo
 
 ```bash
 # Run demo with real data
-python examples/demo_enhanced.py
+python examples/demo.py
 
 # Or run with synthetic data (no dataset needed)
-python examples/demo_enhanced.py  # Auto-detects missing data
-```
-
-### Training a Basic Model (Legacy)
-
-```bash
-python src/audio_anom/train.py \
-    --data-dir data/pump \
-    --output-dir models \
-    --sample-rate 16000 \
-    --contamination 0.1
+python examples/demo.py  # Auto-detects missing data
 ```
 
 ### Running Inference

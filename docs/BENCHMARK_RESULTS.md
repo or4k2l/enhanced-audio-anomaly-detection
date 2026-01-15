@@ -131,7 +131,7 @@ Both systems use:
 # Your system - clear separation
 from audio_anom import (
     AudioFeatureExtractor,      # features.py
-    RandomForestAnomalyDetector, # models_advanced.py
+    RandomForestAnomalyDetector, # models.py
     ModelEvaluator              # evaluation.py
 )
 ```
@@ -161,7 +161,7 @@ def test_feature_extraction():
 #### 4. **Configurability**
 ```bash
 # Flexible Command-Line Interface
-python src/audio_anom/train_enhanced.py \
+python src/audio_anom/train.py \
     --models rf xgb \
     --n-mfcc 20 \
     --pca-variance 0.95 \
@@ -177,7 +177,7 @@ python src/audio_anom/train_enhanced.py \
 #### 6. **Demo Capability**
 ```bash
 # Works without dataset
-python examples/demo_enhanced.py  
+python examples/demo.py  
 # → Generates synthetic data automatically
 ```
 
@@ -208,7 +208,7 @@ With the same dataset (MIMII Pump) you should achieve **identical or very simila
 
 ### 1. Dataset Download
 ```python
-# Add to train_enhanced.py
+# Add to train.py
 try:
     import kagglehub
     if not os.path.exists(args.data_dir):

@@ -9,7 +9,7 @@
 - **MFCCs**: Up to 20 coefficients with mean and standard deviation
 - Total of **77+ features** per audio segment
 
-### 2. New ML Models (`models_advanced.py`)
+### 2. New ML Models (`models.py`)
 
 #### RandomForestAnomalyDetector
 - GridSearchCV with automatic hyperparameter optimization
@@ -44,7 +44,7 @@
   - PCA Explained Variance
   - Comprehensive Reports (6 subplots)
 
-### 4. Enhanced Training Script (`train_enhanced.py`)
+### 4. Training Script (`train.py`)
 - Training multiple models in parallel (RF, XGBoost, Autoencoder)
 - Automatic model selection via command-line
 - PCA and SMOTE optionally configurable
@@ -52,7 +52,7 @@
 - Automatic saving of best model
 - Visualization generation
 
-### 5. Demo Script (`demo_enhanced.py`)
+### 5. Demo Script (`demo.py`)
 - Works with and without real data
 - Generates synthetic data for demonstration
 - Shows complete pipeline from feature extraction to evaluation
@@ -60,15 +60,10 @@
 
 ## Usage
 
-### Basic Training (Legacy)
-```bash
-python src/audio_anom/train.py --data-dir data/pump
-```
-
-### Enhanced Training
+### Training
 ```bash
 # Train all models
-python src/audio_anom/train_enhanced.py \
+python src/audio_anom/train.py \
     --data-dir data/pump \
     --models rf xgb ae \
     --enhanced-features \
@@ -77,7 +72,7 @@ python src/audio_anom/train_enhanced.py \
     --visualize
 
 # Only Random Forest
-python src/audio_anom/train_enhanced.py \
+python src/audio_anom/train.py \
     --data-dir data/pump \
     --models rf \
     --n-mfcc 20 \
@@ -86,7 +81,7 @@ python src/audio_anom/train_enhanced.py \
 
 ### Run Demo
 ```bash
-python examples/demo_enhanced.py  # Uses synthetic data if no dataset available
+python examples/demo.py  # Uses synthetic data if no dataset available
 ```
 
 ### Python API
