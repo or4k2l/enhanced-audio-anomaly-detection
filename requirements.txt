@@ -12,3 +12,4 @@ tensorflow
 kagglehub
 pytest
 flake8
+joblib
