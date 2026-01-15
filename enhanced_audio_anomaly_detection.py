@@ -26,6 +26,7 @@ import glob
 import warnings
 from pathlib import Path
 from collections import defaultdict
+import joblib
 
 import numpy as np
 import pandas as pd
@@ -82,6 +83,11 @@ HOP_LENGTH = 512
 # Model parameters
 TEST_SIZE = 0.2
 N_SPLITS = 5
+
+# Neural network parameters
+NN_EPOCHS = 50
+NN_BATCH_SIZE = 32
+NN_VALIDATION_SPLIT = 0.2
 
 print("Configuration complete.")
 
@@ -195,7 +201,7 @@ def train_random_forest(X_train, y_train, X_test, y_test):
 def train_xgboost(X_train, y_train, X_test, y_test):
     """Train and evaluate XGBoost classifier."""
     print("\nTraining XGBoost...")
-    xgb_model = XGBClassifier(random_state=RANDOM_SEED, use_label_encoder=False, eval_metric='logloss')
+    xgb_model = XGBClassifier(random_state=RANDOM_SEED, eval_metric='logloss')
     xgb_model.fit(X_train, y_train)
     
     y_pred = xgb_model.predict(X_test)
@@ -260,7 +266,7 @@ def plot_confusion_matrix(y_true, y_pred, title="Confusion Matrix"):
     plt.ylabel('True Label')
     plt.xlabel('Predicted Label')
     plt.tight_layout()
-    return plt
+    plt.show()
 
 # ============================================================================
 # 8. MODEL EXPORT
@@ -269,8 +275,6 @@ print("\n[9/10] Exporting models...")
 
 def export_model(model, filename, model_type='sklearn'):
     """Export trained model to disk."""
-    import joblib
-    
     output_dir = 'models'
     os.makedirs(output_dir, exist_ok=True)
     
@@ -337,8 +341,8 @@ def main():
     # Neural network
     print("\nTraining Neural Network...")
     nn_model = build_neural_network(X_train.shape[1])
-    nn_model.fit(X_train, y_train, epochs=50, batch_size=32, 
-                 validation_split=0.2, verbose=0)
+    nn_model.fit(X_train, y_train, epochs=NN_EPOCHS, batch_size=NN_BATCH_SIZE, 
+                 validation_split=NN_VALIDATION_SPLIT, verbose=0)
     
     # Evaluate models
     rf_metrics = evaluate_model(rf_model, X_test, y_test, "Random Forest")
