@@ -16,6 +16,24 @@ from audio_anom.features import AudioFeatureExtractor  # noqa: E402
 class TestAudioDataProcessor:
     """Test suite for AudioDataProcessor."""
 
+    def test_prepare_features_with_empty_audio(self):
+        """Test prepare_features mit leerem Audio."""
+        processor = AudioDataProcessor()
+        extractor = AudioFeatureExtractor()
+        dataset = [("file1.wav", np.array([]), "normal")]
+        X, y = processor.prepare_features(dataset, extractor)
+        assert X.shape[0] == 0
+        assert y.shape[0] == 0
+
+    def test_prepare_features_with_invalid_label(self):
+        """Test prepare_features mit ungültigem Label."""
+        processor = AudioDataProcessor()
+        extractor = AudioFeatureExtractor()
+        dataset = [("file1.wav", np.random.randn(16000), None)]
+        X, y = processor.prepare_features(dataset, extractor)
+        assert X.shape[0] == 1
+        assert y[0] is None
+
     def test_initialization(self):
         """Test data processor initialization."""
         processor = AudioDataProcessor(sr=16000, duration=5.0)
@@ -66,9 +84,7 @@ class TestAudioDataProcessor:
             for i in range(100)
         ]
 
-        train, val, test = processor.split_dataset(
-            dataset, train_ratio=0.7, val_ratio=0.15
-        )
+        train, val, test = processor.split_dataset(dataset, train_ratio=0.7, val_ratio=0.15)
 
         assert len(train) == 70
         assert len(val) == 15

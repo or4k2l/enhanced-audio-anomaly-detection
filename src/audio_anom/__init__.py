@@ -5,6 +5,7 @@ __version__ = "0.1.0"
 from .features import AudioFeatureExtractor
 from .data import AudioDataProcessor, build_feature_vector
 from .models import (
+    AnomalyDetector,
     RandomForestAnomalyDetector,
     XGBoostAnomalyDetector,
     AutoencoderAnomalyDetector,
@@ -15,6 +16,7 @@ from .export import ModelExporter
 __all__ = [
     "AudioFeatureExtractor",
     "AudioDataProcessor",
+    "AnomalyDetector",
     "RandomForestAnomalyDetector",
     "XGBoostAnomalyDetector",
     "AutoencoderAnomalyDetector",

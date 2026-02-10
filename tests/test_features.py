@@ -13,6 +13,20 @@ from audio_anom.features import AudioFeatureExtractor  # noqa: E402
 class TestAudioFeatureExtractor:
     """Test suite for AudioFeatureExtractor."""
 
+    def test_extract_features_empty_audio(self):
+        """Test extract_features mit leerem Audio."""
+        extractor = AudioFeatureExtractor()
+        audio = np.array([])
+        features = extractor.extract_features(audio)
+        assert features is None
+
+    def test_extract_features_short_audio(self):
+        """Test extract_features mit sehr kurzem Audio (<100 Samples)."""
+        extractor = AudioFeatureExtractor()
+        audio = np.random.randn(10)
+        features = extractor.extract_features(audio)
+        assert features is None
+
     def test_initialization(self):
         """Test feature extractor initialization."""
         extractor = AudioFeatureExtractor(sr=16000, n_mels=128)
@@ -51,13 +65,8 @@ class TestAudioFeatureExtractor:
 
         stats = extractor.extract_statistical_features(audio)
 
-        assert "mean" in stats
-        assert "std" in stats
-        assert "max" in stats
-        assert "min" in stats
-        assert "rms" in stats
-        assert "zcr" in stats
-
+        for key in ["mean", "std", "max", "min", "rms", "zcr"]:
+            assert key in stats
         # Check values are reasonable
         assert isinstance(stats["mean"], (int, float, np.number))
         assert stats["std"] >= 0
@@ -66,32 +75,39 @@ class TestAudioFeatureExtractor:
 
     def test_extract_features(self):
         """Test comprehensive feature extraction."""
-        extractor = AudioFeatureExtractor(sr=16000, n_mels=128)
+        n_mels = 128
+        n_mfcc = 13
+        extractor = AudioFeatureExtractor(sr=16000, n_mels=n_mels, n_mfcc=n_mfcc)
         audio = np.random.randn(16000)
 
         features = extractor.extract_features(audio)
 
         # Check all feature types are present
-        assert "mel_spec" in features
-        assert "mfcc" in features
-        assert "mel_spec_mean" in features
-        assert "mel_spec_std" in features
-        assert "mfcc_mean" in features
-        assert "mfcc_std" in features
-        assert "mean" in features
-        assert "std" in features
+        for key in [
+            "mel_spec",
+            "mfcc",
+            "mel_spec_mean",
+            "mel_spec_std",
+            "mfcc_mean",
+            "mfcc_std",
+            "mean",
+            "std",
+        ]:
+            assert key in features
 
         # Check shapes
-        assert features["mel_spec_mean"].shape[0] == 128
-        assert features["mfcc_mean"].shape[0] == 13
+        assert features["mel_spec_mean"].shape[0] == n_mels
+        assert features["mfcc_mean"].shape[0] == n_mfcc
 
     def test_empty_audio(self):
         """Test handling of empty audio."""
-        extractor = AudioFeatureExtractor()
+        n_mels = 128
+        extractor = AudioFeatureExtractor(n_mels=n_mels)
         audio = np.zeros(16000)
 
         features = extractor.extract_features(audio)
 
         # Should still return valid features, even if zeros
         assert "mel_spec_mean" in features
+        assert features["mel_spec_mean"].shape[0] == n_mels
         assert not np.isnan(features["mel_spec_mean"]).any()

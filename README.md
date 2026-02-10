@@ -158,10 +158,28 @@ Run the test suite:
 pytest tests/ -v
 ```
 
+- Die Tests decken Feature-Extraktion, Datenverarbeitung und alle Modellklassen ab.
+- Integrationstests mit realistischen Audiodaten: Lege eigene WAV-Dateien in `tests/real_audio/` ab (z.B. `speech_sample.wav`, `music_sample.wav`, `silence.wav`).
+- Die Datei `tests/test_real_audio.py` prüft Feature- und Modellverhalten auf echten Audiodaten und synthetischen Beispielen.
+- Die Testabdeckung wird automatisch in der CI (GitHub Actions) geprüft.
+
 Run the end-to-end demo:
 ```bash
 python examples/demo.py
 ```
+
+## Continuous Integration
+
+![CI](https://github.com/or4k2l/enhanced-audio-anomaly-detection/actions/workflows/ci.yml/badge.svg)
+
+- Jeder Commit und Pull Request wird automatisch auf Linting, Formatierung und Tests geprüft (siehe `.github/workflows/ci.yml`).
+- Unterstützte Python-Versionen: 3.10, 3.11, 3.12
+
+## Documentation
+
+- Die wichtigsten Methoden und Klassen sind mit Docstrings und Typannotationen versehen.
+- Hinweise zur Datensatzstruktur siehe `docs/DATASET.md`.
+- Für eigene Experimente: Siehe Beispiele in `examples/` und die API-Dokumentation in den Modulen.
 
 ## Development
 
