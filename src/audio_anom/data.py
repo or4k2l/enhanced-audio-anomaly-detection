@@ -71,11 +71,23 @@ class AudioDataProcessor:
         Returns:
             Tuple[np.ndarray, int]: Audiosignal und Sample-Rate
         """
-        audio, sr = sf.read(file_path)
+        print(f"DEBUG: Lade Audiodatei: {file_path}")
+        try:
+            audio, sr = sf.read(file_path)
+            print(f"DEBUG: sf.read erfolgreich, Länge={len(audio)}, SR={sr}")
+        except Exception as e:
+            print(f"Fehler beim Laden mit sf.read: {e}")
+            raise
         if len(audio.shape) > 1:
+            print(f"DEBUG: Mehrkanal, forme zu Mono um.")
             audio = np.mean(audio, axis=1)
         if sr != self.sr:
-            audio = librosa.resample(audio, orig_sr=sr, target_sr=self.sr)
+            print(f"DEBUG: Resample von {sr} auf {self.sr}")
+            try:
+                audio = librosa.resample(audio, orig_sr=sr, target_sr=self.sr)
+            except Exception as e:
+                print(f"Fehler beim Resampling: {e}")
+                raise
         if self.duration is not None:
             target_length = int(self.duration * self.sr)
             if len(audio) > target_length:
@@ -96,7 +108,7 @@ class AudioDataProcessor:
             List[Tuple[str, np.ndarray, str]]: Liste aus (Pfad, Audio, Label)
         """
         data_dir = Path(data_dir)
-        audio_files = sorted(data_dir.glob(file_pattern))
+        audio_files = sorted(data_dir.rglob(file_pattern))
         dataset: List[Tuple[str, np.ndarray, str]] = []
         for file_path in audio_files:
             try:
@@ -131,12 +143,16 @@ class AudioDataProcessor:
         indices = np.random.permutation(n_samples)
         n_train = int(n_samples * train_ratio)
         n_val = int(n_samples * val_ratio)
+        n_test = n_samples - n_train - n_val
+        print(f"[DEBUG] split_dataset: Eingabe-Datensatzgröße: {len(dataset)}")
+        print(f"[DEBUG] split_dataset: n_train={n_train}, n_val={n_val}, n_test={n_test}")
         train_idx = indices[:n_train]
         val_idx = indices[n_train : n_train + n_val]
         test_idx = indices[n_train + n_val :]
         train = [dataset[i] for i in train_idx]
         val = [dataset[i] for i in val_idx]
         test = [dataset[i] for i in test_idx]
+        print(f"[DEBUG] split_dataset: train_data={len(train)}, val_data={len(val)}, test_data={len(test)}")
         return train, val, test
 
     def prepare_features(

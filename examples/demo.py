@@ -3,6 +3,8 @@
 Enhanced demo script showcasing all features of the audio anomaly detection system.
 """
 
+import sys
+import os
 import numpy as np
 
 # Add src to path
@@ -25,7 +27,7 @@ def main():
     SAMPLE_RATE = 16000
     N_MELS = 128
     N_MFCC = 20
-    DATA_DIR = "data/pump"
+    DATA_DIR = "/home/codespace/.cache/kagglehub/datasets/vuppalaadithyasairam/anomaly-detection-from-sound-data-fan/versions/1/dev_data_fan/train"
     
     print("\n[1/6] Initializing components...")
     feature_extractor = AudioFeatureExtractor(
@@ -37,95 +39,81 @@ def main():
     data_processor = AudioDataProcessor(sr=SAMPLE_RATE)
     evaluator = ModelEvaluator()
     
-    # Check if data directory exists
-    if not os.path.exists(DATA_DIR):
-        print(f"\n⚠️  Data directory '{DATA_DIR}' not found.")
-        print("Please download the dataset following instructions in docs/DATASET.md")
-        print("\nRunning with synthetic data for demonstration...")
-        use_synthetic = True
+    # Initialisierung der Arrays
+    X_train, y_train, X_val, y_val, X_test, y_test = [], [], [], [], [], []
+    use_synthetic = False
+    dataset = []  # Initialisierung, damit die Variable immer existiert
+    # Debug-Ausgabe: Dataset-Laden
+    print("[DEBUG] Lade Dataset...")
+    print(f"[DEBUG] DATA_DIR: {DATA_DIR}")
+    print(f"[DEBUG] use_synthetic: {use_synthetic}")
+    print(f"[DEBUG] dataset initial length: {len(dataset)}")
+    if not use_synthetic:
+        # Hier sollte das echte Dataset geladen werden
+        dataset = data_processor.load_dataset(DATA_DIR)
+        print(f"[DEBUG] Nach Laden: {len(dataset)} Dateien im Dataset.")
+        if len(dataset) > 0:
+            print(f"[DEBUG] Beispiel-Dateipfad: {dataset[0][0]}")
+            print(f"[DEBUG] Beispiel-Label: {dataset[0][2]}")
+        # Begrenzung direkt nach Laden
+        MAX_FILES = 10
+        if len(dataset) > MAX_FILES:
+            print(f"[DEBUG] Begrenze Dataset auf {MAX_FILES} Dateien.")
+            dataset = dataset[:MAX_FILES]
+        print(f"[DEBUG] Nach Begrenzung: {len(dataset)} Dateien im Dataset.")
+        # Split und Debug-Ausgabe
+        train_data, val_data, test_data = data_processor.split_dataset(dataset, train_ratio=0.7, val_ratio=0.15)
+        print(f"[DEBUG] Split-Ergebnis: train_data={len(train_data)}, val_data={len(val_data)}, test_data={len(test_data)}")
+        if len(train_data) > 0:
+            print(f"[DEBUG] Beispiel-Train-Dateipfad: {train_data[0][0]}")
+            print(f"[DEBUG] Beispiel-Train-Label: {train_data[0][2]}")
     else:
-        use_synthetic = False
-    
-    if use_synthetic:
-        # Generate synthetic data for demo
-        print("\n[2/6] Generating synthetic data...")
-        np.random.seed(42)
-        
-        # Normal samples (Gaussian noise)
-        X_normal = np.random.randn(100, 50)
-        y_normal = np.zeros(100)
-        
-        # Anomaly samples (shifted distribution)
-        X_anomaly = np.random.randn(20, 50) + 2
-        y_anomaly = np.ones(20)
-        
-        # Combine and shuffle
-        X = np.vstack([X_normal, X_anomaly])
-        y = np.hstack([y_normal, y_anomaly])
-        
-        # Split
-        from sklearn.model_selection import train_test_split
-        X_train, X_temp, y_train, y_temp = train_test_split(
-            X, y, test_size=0.3, random_state=42, stratify=y
-        )
-        X_val, X_test, y_val, y_test = train_test_split(
-            X_temp, y_temp, test_size=0.5, random_state=42, stratify=y_temp
-        )
-        
-        print(f"Train: {len(X_train)} samples")
-        print(f"Val: {len(X_val)} samples")
-        print(f"Test: {len(X_test)} samples")
-    
-    else:
-        # Load real data
-        print(f"\n[2/6] Loading dataset from {DATA_DIR}...")
-        dataset = data_processor.load_dataset(DATA_DIR, "*.wav")
-        
-        if len(dataset) == 0:
-            print("Error: No audio files found")
-            return
-        
-        print(f"Loaded {len(dataset)} audio files")
-        
-        # Split dataset
-        print("\n[3/6] Splitting dataset...")
-        train_data, val_data, test_data = data_processor.split_dataset(
-            dataset, train_ratio=0.7, val_ratio=0.15
-        )
-        
-        # Extract features
-        print("\n[4/6] Extracting enhanced features...")
-        X_train, y_train = [], []
-        for audio, label in train_data:
-            features = feature_extractor.extract_features(audio, enhanced=True)
-            if features is not None:
-                feat_array = np.array([features[k] for k in sorted(features.keys())])
-                X_train.append(feat_array)
-                y_train.append(label)
-        
-        X_val, y_val = [], []
-        for audio, label in val_data:
-            features = feature_extractor.extract_features(audio, enhanced=True)
-            if features is not None:
-                feat_array = np.array([features[k] for k in sorted(features.keys())])
-                X_val.append(feat_array)
-                y_val.append(label)
-        
-        X_test, y_test = [], []
-        for audio, label in test_data:
-            features = feature_extractor.extract_features(audio, enhanced=True)
-            if features is not None:
-                feat_array = np.array([features[k] for k in sorted(features.keys())])
-                X_test.append(feat_array)
-                y_test.append(label)
-        
-        X_train = np.array(X_train)
-        y_train = np.array(y_train)
-        X_val = np.array(X_val)
-        y_val = np.array(y_val)
-        X_test = np.array(X_test)
-        y_test = np.array(y_test)
-    
+        print("[DEBUG] Synthetic-Daten werden verwendet.")
+    print("\n[3/6] Splitting dataset...")
+    train_data, val_data, test_data = data_processor.split_dataset(
+        dataset, train_ratio=0.7, val_ratio=0.15
+    )
+    # Debug-Ausgabe: Split-Ergebnis
+    print(f"[DEBUG] Split-Ergebnis: train_data={len(train_data)}, val_data={len(val_data)}, test_data={len(test_data)}")
+    print("\n[4/6] Extracting enhanced features...")
+    # Debug-Ausgabe: Feature-Extraktion
+    print("[DEBUG] Starte Feature-Extraktion für Trainingsdaten...")
+    MAX_FILES = 10
+    if not use_synthetic and len(dataset) > MAX_FILES:
+        print(f"[DEBUG] Begrenze Dataset auf {MAX_FILES} Dateien.")
+        dataset = dataset[:MAX_FILES]
+    for i, (filepath, audio, label) in enumerate(train_data):
+        features = feature_extractor.extract_features(audio, enhanced=True)
+        if features is not None:
+            print(f"[DEBUG] Features extrahiert für {filepath} (Index {i})")
+            feat_array = np.array([features[k] for k in sorted(features.keys())])
+            X_train.append(feat_array)
+            y_train.append(1 if label == "anomaly" else 0 if label == "normal" else label)
+        else:
+            print(f"[DEBUG] Keine Features für {filepath} (Index {i})")
+    for filepath, audio, label in val_data:
+        features = feature_extractor.extract_features(audio, enhanced=True)
+        if features is not None:
+            feat_array = np.array([features[k] for k in sorted(features.keys())])
+            X_val.append(feat_array)
+            y_val.append(1 if label == "anomaly" else 0 if label == "normal" else label)
+    for filepath, audio, label in test_data:
+        features = feature_extractor.extract_features(audio, enhanced=True)
+        if features is not None:
+            feat_array = np.array([features[k] for k in sorted(features.keys())])
+            X_test.append(feat_array)
+            y_test.append(1 if label == "anomaly" else 0 if label == "normal" else label)
+    # Umwandlung in numpy-Arrays
+    X_train = np.array(X_train)
+    y_train = np.array(y_train)
+    X_val = np.array(X_val)
+    y_val = np.array(y_val)
+    X_test = np.array(X_test)
+    y_test = np.array(y_test)
+    # Fehlerbehandlung nur einmal
+    if X_train.size == 0:
+        print("Fehler: Keine Features extrahiert. Prüfe die Audiodatei und die Extraktionslogik.")
+        return
     print(f"\nFeature shape: {X_train.shape}")
     print(f"Label distribution - Train: Normal={np.sum(y_train==0)}, Anomaly={np.sum(y_train==1)}")
     

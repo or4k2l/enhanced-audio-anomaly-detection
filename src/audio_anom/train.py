@@ -62,10 +62,10 @@ def train(args):
     for audio, label in train_data:
         features = feature_extractor.extract_features(audio, enhanced=args.enhanced_features)
         if features is not None:
-            # Convert dict to array (sorted keys for consistency)
             feat_array = np.array([features[k] for k in sorted(features.keys())])
             X_train.append(feat_array)
-            y_train.append(label)
+            # Label-Konvertierung
+            y_train.append(1 if label == "anomaly" else 0 if label == "normal" else label)
 
     X_val, y_val = [], []
     for audio, label in val_data:
@@ -73,7 +73,7 @@ def train(args):
         if features is not None:
             feat_array = np.array([features[k] for k in sorted(features.keys())])
             X_val.append(feat_array)
-            y_val.append(label)
+            y_val.append(1 if label == "anomaly" else 0 if label == "normal" else label)
 
     X_test, y_test = [], []
     for audio, label in test_data:
@@ -81,7 +81,7 @@ def train(args):
         if features is not None:
             feat_array = np.array([features[k] for k in sorted(features.keys())])
             X_test.append(feat_array)
-            y_test.append(label)
+            y_test.append(1 if label == "anomaly" else 0 if label == "normal" else label)
 
     X_train = np.array(X_train)
     y_train = np.array(y_train)
