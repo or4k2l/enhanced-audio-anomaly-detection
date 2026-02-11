@@ -1,5 +1,15 @@
 # Enhanced Audio Anomaly Detection
 
+## Demo-Skript
+
+Das Demo-Skript befindet sich jetzt unter `src/audio_anom/demo.py` und kann wie folgt ausgeführt werden:
+
+```bash
+python3 -m audio_anom.demo
+```
+
+Dadurch werden alle Features und Modelle demonstriert.
+
 Advanced audio anomaly detection system for industrial equipment monitoring using machine learning. This system provides comprehensive feature extraction, multiple ML models, and thorough evaluation capabilities.
 
 ## Features
