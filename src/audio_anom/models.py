@@ -59,18 +59,6 @@ class RandomForestAnomalyDetector(AnomalyDetector):
     """
 
     def __init__(self, random_state: int = 42, n_splits: int = 5) -> None:
-        ...
-        self._is_fitted = False
-
-    def __init__(self, random_state: int = 42, n_splits: int = 5) -> None:
-        ...
-        self._is_fitted = False
-
-    @property
-    def is_fitted(self) -> bool:
-        return self._is_fitted
-
-    def __init__(self, random_state: int = 42, n_splits: int = 5) -> None:
         """
         Initialisiert den Random Forest Detektor.
 
@@ -258,7 +246,7 @@ class XGBoostAnomalyDetector(AnomalyDetector):
         self.best_params = None
         self._is_fitted = False
 
-                return self._is_fitted
+    @property
     def is_fitted(self) -> bool:
         return self._is_fitted
 
@@ -406,6 +394,7 @@ class AutoencoderAnomalyDetector(AnomalyDetector):
     @property
     def is_fitted(self) -> bool:
         return self._is_fitted
+
     """Autoencoder based anomaly detector for unsupervised learning."""
 
     def __init__(self, encoding_dim=10, random_state=42):

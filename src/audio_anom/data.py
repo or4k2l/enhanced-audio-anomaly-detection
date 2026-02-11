@@ -8,11 +8,6 @@ from pathlib import Path
 
 
 from typing import Any, Dict, List, Optional, Tuple, Union
-import numpy as np
-import pandas as pd
-import soundfile as sf
-import librosa
-from pathlib import Path
 
 def build_feature_vector(features: Dict[str, Any]) -> np.ndarray:
     """
@@ -109,6 +104,7 @@ class AudioDataProcessor:
                 label = "normal" if "normal" in file_path.stem.lower() else "anomaly"
                 dataset.append((str(file_path), audio, label))
             except Exception as e:
+                # Fehlerausgabe, später logging verwenden
                 print(f"Error loading {file_path}: {e}")
                 continue
         return dataset

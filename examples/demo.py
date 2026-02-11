@@ -1,20 +1,8 @@
-print("DEBUG sys.path (nach Import):", sys.path)
-print("DEBUG sys.path:", sys.path)
 #!/usr/bin/env python3
 """
 Enhanced demo script showcasing all features of the audio anomaly detection system.
-
-This script demonstrates:
-- Enhanced feature extraction
-- Multiple model training (Random Forest, XGBoost, Autoencoder)
-- Comprehensive evaluation and visualization
-- Model comparison
 """
 
-import sys
-import os
-print("DEBUG sys.path (ganz am Anfang):", sys.path)
-print("DEBUG sys.path (vor insert):", sys.path)
 import numpy as np
 
 # Add src to path
