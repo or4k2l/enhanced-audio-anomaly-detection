@@ -1,3 +1,5 @@
+print("DEBUG sys.path (nach Import):", sys.path)
+print("DEBUG sys.path:", sys.path)
 #!/usr/bin/env python3
 """
 Enhanced demo script showcasing all features of the audio anomaly detection system.
@@ -11,22 +13,22 @@ This script demonstrates:
 
 import sys
 import os
+print("DEBUG sys.path (ganz am Anfang):", sys.path)
+print("DEBUG sys.path (vor insert):", sys.path)
 import numpy as np
 
 # Add src to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'src', 'audio_anom')))
 
-from audio_anom import (
-    AudioFeatureExtractor,
-    AudioDataProcessor,
-    RandomForestAnomalyDetector,
-    XGBoostAnomalyDetector,
-    ModelEvaluator,
-)
+from data import AudioDataProcessor
+from features import AudioFeatureExtractor
+from models import RandomForestAnomalyDetector, XGBoostAnomalyDetector
+from evaluation import ModelEvaluator
 
 
 def main():
     """Run enhanced demo."""
+    print("DEBUG: main gestartet")
     print("=" * 80)
     print("ENHANCED AUDIO ANOMALY DETECTION - DEMO")
     print("=" * 80)

@@ -41,7 +41,7 @@ class AnomalyDetector(ABC):
     @abstractmethod
     def is_fitted(self) -> bool:
         """Gibt zurück, ob das Modell trainiert ist."""
-        pass
+        ...
 
 class RandomForestAnomalyDetector(AnomalyDetector):
     """
@@ -59,6 +59,18 @@ class RandomForestAnomalyDetector(AnomalyDetector):
     """
 
     def __init__(self, random_state: int = 42, n_splits: int = 5) -> None:
+        ...
+        self._is_fitted = False
+
+    def __init__(self, random_state: int = 42, n_splits: int = 5) -> None:
+        ...
+        self._is_fitted = False
+
+    @property
+    def is_fitted(self) -> bool:
+        return self._is_fitted
+
+    def __init__(self, random_state: int = 42, n_splits: int = 5) -> None:
         """
         Initialisiert den Random Forest Detektor.
 
@@ -73,7 +85,11 @@ class RandomForestAnomalyDetector(AnomalyDetector):
         self.smote = SMOTE(random_state=random_state)
         self.model = None
         self.best_params = None
-        self.is_fitted = False
+        self._is_fitted = False
+
+    @property
+    def is_fitted(self) -> bool:
+        return self._is_fitted
 
     def fit(
         self,
@@ -147,7 +163,7 @@ class RandomForestAnomalyDetector(AnomalyDetector):
         self.model = grid_search.best_estimator_
         self.best_params = grid_search.best_params_
         self.best_cv_score = grid_search.best_score_
-        self.is_fitted = True
+        self._is_fitted = True
 
         if verbose > 0:
             print(f"  Best params: {self.best_params}")
@@ -165,7 +181,7 @@ class RandomForestAnomalyDetector(AnomalyDetector):
         Returns:
             np.ndarray: Vorhersagen (0/1)
         """
-        if not self.is_fitted:
+        if not self._is_fitted:
             raise ValueError("Model must be fitted before prediction")
         X_scaled = self.scaler.transform(X)
         if self.pca is not None:
@@ -184,7 +200,7 @@ class RandomForestAnomalyDetector(AnomalyDetector):
         Returns:
             np.ndarray: Wahrscheinlichkeiten
         """
-        if not self.is_fitted:
+        if not self._is_fitted:
             raise ValueError("Model must be fitted before prediction")
         X_scaled = self.scaler.transform(X)
         if self.pca is not None:
@@ -200,7 +216,7 @@ class RandomForestAnomalyDetector(AnomalyDetector):
         Args:
             model_path (str): Speicherpfad
         """
-        if not self.is_fitted:
+        if not self._is_fitted:
             raise ValueError("Cannot save unfitted model")
         model_data = {
             "scaler": self.scaler,
@@ -227,21 +243,12 @@ class RandomForestAnomalyDetector(AnomalyDetector):
         self.model = model_data["model"]
         self.best_params = model_data.get("best_params", None)
         self.random_state = model_data["random_state"]
-        self.is_fitted = True
+        self._is_fitted = True
         return self
 
 
 class XGBoostAnomalyDetector(AnomalyDetector):
-    """XGBoost based anomaly detector with hyperparameter tuning."""
-
     def __init__(self, random_state=42, n_splits=5):
-        """
-        Initialize XGBoost detector.
-
-        Args:
-            random_state: Random state for reproducibility
-            n_splits: Number of cross-validation splits
-        """
         self.random_state = random_state
         self.n_splits = n_splits
         self.scaler = StandardScaler()
@@ -249,7 +256,11 @@ class XGBoostAnomalyDetector(AnomalyDetector):
         self.smote = SMOTE(random_state=random_state)
         self.model = None
         self.best_params = None
-        self.is_fitted = False
+        self._is_fitted = False
+
+                return self._is_fitted
+    def is_fitted(self) -> bool:
+        return self._is_fitted
 
     def fit(
         self, X, y, use_pca=True, pca_variance=0.95, use_smote=True, param_grid=None, verbose=1
@@ -322,7 +333,7 @@ class XGBoostAnomalyDetector(AnomalyDetector):
         self.model = grid_search.best_estimator_
         self.best_params = grid_search.best_params_
         self.best_cv_score = grid_search.best_score_
-        self.is_fitted = True
+        self._is_fitted = True
 
         if verbose > 0:
             print(f"  Best params: {self.best_params}")
@@ -383,6 +394,18 @@ class XGBoostAnomalyDetector(AnomalyDetector):
 
 
 class AutoencoderAnomalyDetector(AnomalyDetector):
+    def __init__(self, encoding_dim=10, random_state=42):
+        self.encoding_dim = encoding_dim
+        self.random_state = random_state
+        self.scaler = StandardScaler()
+        self.pca = None
+        self.autoencoder = None
+        self.threshold = None
+        self._is_fitted = False
+
+    @property
+    def is_fitted(self) -> bool:
+        return self._is_fitted
     """Autoencoder based anomaly detector for unsupervised learning."""
 
     def __init__(self, encoding_dim=10, random_state=42):
@@ -402,7 +425,11 @@ class AutoencoderAnomalyDetector(AnomalyDetector):
         self.pca = None
         self.autoencoder = None
         self.threshold = None
-        self.is_fitted = False
+        self._is_fitted = False
+
+    @property
+    def is_fitted(self) -> bool:
+        return self._is_fitted
 
     def _build_autoencoder(self, input_dim):
         """Build autoencoder model."""
@@ -482,12 +509,12 @@ class AutoencoderAnomalyDetector(AnomalyDetector):
         mse = np.mean(np.square(X_normal - recon), axis=1)
         self.threshold = np.percentile(mse, 95)
 
-        self.is_fitted = True
+        self._is_fitted = True
         return self
 
     def predict(self, X):
         """Predict anomalies based on reconstruction error."""
-        if not self.is_fitted:
+        if not self._is_fitted:
             raise ValueError("Model must be fitted before prediction")
 
         X_scaled = self.scaler.transform(X)
