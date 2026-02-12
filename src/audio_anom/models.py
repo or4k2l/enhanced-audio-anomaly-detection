@@ -376,7 +376,7 @@ class XGBoostAnomalyDetector(AnomalyDetector):
         self.model = model_data["model"]
         self.best_params = model_data.get("best_params", None)
         self.random_state = model_data["random_state"]
-        self.is_fitted = True
+        self._is_fitted = True
         return self
 
 
@@ -550,5 +550,5 @@ class AutoencoderAnomalyDetector(AnomalyDetector):
         autoencoder_path = model_data["autoencoder_path"]
         self.autoencoder = keras.models.load_model(autoencoder_path)
 
-        self.is_fitted = True
+        self._is_fitted = True
         return self
