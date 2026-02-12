@@ -37,6 +37,9 @@ setup(
             "flake8",
             "pytest",
         ],
+        "tensorflow": [
+            "tensorflow",
+        ],
     },
     entry_points={
         "console_scripts": [

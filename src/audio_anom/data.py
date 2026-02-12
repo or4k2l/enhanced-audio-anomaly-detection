@@ -9,6 +9,7 @@ from pathlib import Path
 
 from typing import Any, Dict, List, Optional, Tuple, Union
 
+
 def build_feature_vector(features: Dict[str, Any]) -> np.ndarray:
     """
     Baut einen Feature-Vektor aus einem Feature-Dictionary.
@@ -19,6 +20,7 @@ def build_feature_vector(features: Dict[str, Any]) -> np.ndarray:
     Returns:
         np.ndarray: 1D-Feature-Vektor
     """
+
     def safe_get(key: str, default: Any) -> Any:
         return features[key] if key in features else default
 
@@ -38,7 +40,6 @@ def build_feature_vector(features: Dict[str, Any]) -> np.ndarray:
             ],
         ]
     )
-
 
 
 class AudioDataProcessor:
@@ -71,18 +72,14 @@ class AudioDataProcessor:
         Returns:
             Tuple[np.ndarray, int]: Audiosignal und Sample-Rate
         """
-        print(f"DEBUG: Lade Audiodatei: {file_path}")
         try:
             audio, sr = sf.read(str(file_path))
-            print(f"DEBUG: sf.read erfolgreich, Länge={len(audio)}, SR={sr}")
         except Exception as e:
             print(f"Fehler beim Laden mit sf.read: {e}")
             raise
         if len(audio.shape) > 1:
-            print(f"DEBUG: Mehrkanal, forme zu Mono um.")
             audio = np.mean(audio, axis=1)
         if sr != self.sr:
-            print(f"DEBUG: Resample von {sr} auf {self.sr}")
             try:
                 audio = librosa.resample(audio, orig_sr=sr, target_sr=self.sr)
             except Exception as e:
@@ -96,7 +93,9 @@ class AudioDataProcessor:
                 audio = np.pad(audio, (0, target_length - len(audio)))
         return audio, self.sr
 
-    def load_dataset(self, data_dir: Union[str, Path], file_pattern: str = "*.wav") -> List[Tuple[str, np.ndarray, str]]:
+    def load_dataset(
+        self, data_dir: Union[str, Path], file_pattern: str = "*.wav"
+    ) -> List[Tuple[str, np.ndarray, str]]:
         """
         Lädt mehrere Audiodateien aus einem Verzeichnis.
 
@@ -113,7 +112,16 @@ class AudioDataProcessor:
         for file_path in audio_files:
             try:
                 audio, sr = self.load_audio(file_path)
-                label = "normal" if "normal" in file_path.stem.lower() else "anomaly"
+                path_parts = [part.lower() for part in file_path.parts]
+                stem = file_path.stem.lower()
+                is_normal = "normal" in path_parts or "normal" in stem
+                is_anomaly = (
+                    "abnormal" in path_parts
+                    or "anomaly" in path_parts
+                    or "abnormal" in stem
+                    or "anomaly" in stem
+                )
+                label = "normal" if is_normal and not is_anomaly else "anomaly"
                 dataset.append((str(file_path), audio, label))
             except Exception as e:
                 # Fehlerausgabe, später logging verwenden
@@ -126,7 +134,11 @@ class AudioDataProcessor:
         dataset: List[Tuple[str, np.ndarray, str]],
         train_ratio: float = 0.7,
         val_ratio: float = 0.15,
-    ) -> Tuple[List[Tuple[str, np.ndarray, str]], List[Tuple[str, np.ndarray, str]], List[Tuple[str, np.ndarray, str]]]:
+    ) -> Tuple[
+        List[Tuple[str, np.ndarray, str]],
+        List[Tuple[str, np.ndarray, str]],
+        List[Tuple[str, np.ndarray, str]],
+    ]:
         """
         Teilt das Dataset in Trainings-, Validierungs- und Testdaten.
 
@@ -138,21 +150,17 @@ class AudioDataProcessor:
         Returns:
             Tuple[List, List, List]: (train, val, test)
         """
-        np.random.seed(42)
+        rng = np.random.default_rng(42)
         n_samples = len(dataset)
-        indices = np.random.permutation(n_samples)
+        indices = rng.permutation(n_samples)
         n_train = int(n_samples * train_ratio)
         n_val = int(n_samples * val_ratio)
-        n_test = n_samples - n_train - n_val
-        print(f"[DEBUG] split_dataset: Eingabe-Datensatzgröße: {len(dataset)}")
-        print(f"[DEBUG] split_dataset: n_train={n_train}, n_val={n_val}, n_test={n_test}")
         train_idx = indices[:n_train]
         val_idx = indices[n_train : n_train + n_val]
         test_idx = indices[n_train + n_val :]
         train = [dataset[i] for i in train_idx]
         val = [dataset[i] for i in val_idx]
         test = [dataset[i] for i in test_idx]
-        print(f"[DEBUG] split_dataset: train_data={len(train)}, val_data={len(val)}, test_data={len(test)}")
         return train, val, test
 
     def prepare_features(
@@ -182,7 +190,11 @@ class AudioDataProcessor:
         return np.array(features_list), np.array(labels)
 
     def process_dataset_with_metadata(
-        self, base_path, segment_length_sec=1, max_audio_length_sec=10, feature_extractor=None
+        self,
+        base_path,
+        segment_length_sec=1,
+        max_audio_length_sec=10,
+        feature_extractor=None,
     ):
         """
         Process entire dataset with metadata tracking (pump_id, file_id, segment_id).
@@ -243,7 +255,9 @@ class AudioDataProcessor:
                         segment = audio[i : i + segment_length_samples]
 
                         if len(segment) == segment_length_samples:
-                            features = feature_extractor.extract_features(segment, enhanced=True)
+                            features = feature_extractor.extract_features(
+                                segment, enhanced=True
+                            )
 
                             if features is not None:
                                 # Add metadata
@@ -265,7 +279,7 @@ class AudioDataProcessor:
                     continue
 
         df = pd.DataFrame(all_data)
-        print(f"\n✓ Processing complete:")
+        print("\n✓ Processing complete:")
         print(f"  - Normal files: {file_count['normal']}")
         print(f"  - Abnormal files: {file_count['abnormal']}")
         print(f"  - Total segments: {len(df)}")

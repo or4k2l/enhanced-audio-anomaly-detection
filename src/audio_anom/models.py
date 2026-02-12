@@ -10,7 +10,6 @@ from xgboost import XGBClassifier
 import joblib
 
 try:
-    import tensorflow as tf
     from tensorflow import keras
     from tensorflow.keras import layers
 
@@ -19,8 +18,9 @@ except ImportError:
     HAS_TENSORFLOW = False
 
 
-from typing import Any, Dict, Optional, Tuple, Union
+from typing import Any, Dict, Optional
 from abc import ABC, abstractmethod
+
 
 class AnomalyDetector(ABC):
     """
@@ -42,6 +42,7 @@ class AnomalyDetector(ABC):
     def is_fitted(self) -> bool:
         """Gibt zurück, ob das Modell trainiert ist."""
         ...
+
 
 class RandomForestAnomalyDetector(AnomalyDetector):
     """
@@ -123,7 +124,9 @@ class RandomForestAnomalyDetector(AnomalyDetector):
         if use_smote:
             X_resampled, y_resampled = self.smote.fit_resample(X_processed, y)
             if verbose > 0:
-                print(f"  SMOTE: {X_processed.shape[0]} → {X_resampled.shape[0]} samples")
+                print(
+                    f"  SMOTE: {X_processed.shape[0]} → {X_resampled.shape[0]} samples"
+                )
         else:
             X_resampled, y_resampled = X_processed, y
 
@@ -144,7 +147,12 @@ class RandomForestAnomalyDetector(AnomalyDetector):
         )
 
         grid_search = GridSearchCV(
-            rf_model, param_grid, cv=cv_strategy, scoring="f1", verbose=verbose, n_jobs=-1
+            rf_model,
+            param_grid,
+            cv=cv_strategy,
+            scoring="f1",
+            verbose=verbose,
+            n_jobs=-1,
         )
         grid_search.fit(X_resampled, y_resampled)
 
@@ -236,6 +244,8 @@ class RandomForestAnomalyDetector(AnomalyDetector):
 
 
 class XGBoostAnomalyDetector(AnomalyDetector):
+    """XGBoost-based anomaly detector with optional PCA and SMOTE."""
+
     def __init__(self, random_state=42, n_splits=5):
         self.random_state = random_state
         self.n_splits = n_splits
@@ -251,7 +261,14 @@ class XGBoostAnomalyDetector(AnomalyDetector):
         return self._is_fitted
 
     def fit(
-        self, X, y, use_pca=True, pca_variance=0.95, use_smote=True, param_grid=None, verbose=1
+        self,
+        X,
+        y,
+        use_pca=True,
+        pca_variance=0.95,
+        use_smote=True,
+        param_grid=None,
+        verbose=1,
     ):
         """
         Fit the XGBoost detector with optional PCA and SMOTE.
@@ -285,12 +302,16 @@ class XGBoostAnomalyDetector(AnomalyDetector):
         if use_smote:
             X_resampled, y_resampled = self.smote.fit_resample(X_processed, y)
             if verbose > 0:
-                print(f"  SMOTE: {X_processed.shape[0]} → {X_resampled.shape[0]} samples")
+                print(
+                    f"  SMOTE: {X_processed.shape[0]} → {X_resampled.shape[0]} samples"
+                )
         else:
             X_resampled, y_resampled = X_processed, y
 
         # Calculate scale_pos_weight
-        scale_pos_weight = len(y_resampled[y_resampled == 0]) / len(y_resampled[y_resampled == 1])
+        scale_pos_weight = len(y_resampled[y_resampled == 0]) / len(
+            y_resampled[y_resampled == 1]
+        )
 
         # Default parameter grid
         if param_grid is None:
@@ -314,7 +335,12 @@ class XGBoostAnomalyDetector(AnomalyDetector):
         )
 
         grid_search = GridSearchCV(
-            xgb_model, param_grid, cv=cv_strategy, scoring="f1", verbose=verbose, n_jobs=-1
+            xgb_model,
+            param_grid,
+            cv=cv_strategy,
+            scoring="f1",
+            verbose=verbose,
+            n_jobs=-1,
         )
         grid_search.fit(X_resampled, y_resampled)
 
@@ -377,24 +403,11 @@ class XGBoostAnomalyDetector(AnomalyDetector):
         self.model = model_data["model"]
         self.best_params = model_data.get("best_params", None)
         self.random_state = model_data["random_state"]
-        self.is_fitted = True
+        self._is_fitted = True
         return self
 
 
 class AutoencoderAnomalyDetector(AnomalyDetector):
-    def __init__(self, encoding_dim=10, random_state=42):
-        self.encoding_dim = encoding_dim
-        self.random_state = random_state
-        self.scaler = StandardScaler()
-        self.pca = None
-        self.autoencoder = None
-        self.threshold = None
-        self._is_fitted = False
-
-    @property
-    def is_fitted(self) -> bool:
-        return self._is_fitted
-
     """Autoencoder based anomaly detector for unsupervised learning."""
 
     def __init__(self, encoding_dim=10, random_state=42):
@@ -564,5 +577,5 @@ class AutoencoderAnomalyDetector(AnomalyDetector):
         autoencoder_path = model_data["autoencoder_path"]
         self.autoencoder = keras.models.load_model(autoencoder_path)
 
-        self.is_fitted = True
+        self._is_fitted = True
         return self

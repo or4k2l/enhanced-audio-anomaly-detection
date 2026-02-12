@@ -10,7 +10,6 @@ from sklearn.metrics import (
     roc_auc_score,
     roc_curve,
     confusion_matrix,
-    classification_report,
 )
 
 
@@ -82,7 +81,7 @@ class ModelEvaluator:
 
         # Confusion matrix
         cm = confusion_matrix(y_true, y_pred)
-        print(f"\nConfusion Matrix:")
+        print("\nConfusion Matrix:")
         print(f"  TN: {cm[0,0]:4d}  |  FP: {cm[0,1]:4d}")
         print(f"  FN: {cm[1,0]:4d}  |  TP: {cm[1,1]:4d}")
 
@@ -201,7 +200,9 @@ class ModelEvaluator:
 
         plt.show()
 
-    def plot_feature_importance(self, model, feature_names=None, top_n=15, save_path=None):
+    def plot_feature_importance(
+        self, model, feature_names=None, top_n=15, save_path=None
+    ):
         """
         Plot feature importance for tree-based models.
 
@@ -286,7 +287,9 @@ class ModelEvaluator:
         # 1. Model comparison
         results_list = []
         for name, data in models_results.items():
-            metrics = self.evaluate_model(y_true_test, data["y_pred"], data.get("y_prob"), name)
+            metrics = self.evaluate_model(
+                y_true_test, data["y_pred"], data.get("y_prob"), name
+            )
             results_list.append(metrics)
 
         df_results = pd.DataFrame(results_list).set_index("Model")
@@ -350,7 +353,12 @@ class ModelEvaluator:
             axes[1, 0].invert_yaxis()
         else:
             axes[1, 0].text(
-                0.5, 0.5, "Feature importance\nnot available", ha="center", va="center", fontsize=12
+                0.5,
+                0.5,
+                "Feature importance\nnot available",
+                ha="center",
+                va="center",
+                fontsize=12,
             )
             axes[1, 0].set_xticks([])
             axes[1, 0].set_yticks([])
@@ -369,7 +377,9 @@ class ModelEvaluator:
             axes[1, 1].legend()
             axes[1, 1].grid(True, alpha=0.3)
         else:
-            axes[1, 1].text(0.5, 0.5, "PCA not used", ha="center", va="center", fontsize=12)
+            axes[1, 1].text(
+                0.5, 0.5, "PCA not used", ha="center", va="center", fontsize=12
+            )
             axes[1, 1].set_xticks([])
             axes[1, 1].set_yticks([])
 
@@ -378,7 +388,9 @@ class ModelEvaluator:
         axes[1, 2].axis("off")
         table_data = []
         for name, data in models_results.items():
-            metrics = self.evaluate_model(y_true_test, data["y_pred"], data.get("y_prob"), name)
+            metrics = self.evaluate_model(
+                y_true_test, data["y_pred"], data.get("y_prob"), name
+            )
             table_data.append(
                 [
                     metrics["Model"],
@@ -407,7 +419,9 @@ class ModelEvaluator:
 
             os.makedirs(save_dir, exist_ok=True)
             plt.savefig(
-                os.path.join(save_dir, "comprehensive_report.png"), dpi=300, bbox_inches="tight"
+                os.path.join(save_dir, "comprehensive_report.png"),
+                dpi=300,
+                bbox_inches="tight",
             )
 
         plt.show()
@@ -478,8 +492,10 @@ class ModelEvaluator:
 
             # SMOTE
             try:
-                X_train_res_abl, y_train_res_abl = smote.fit_resample(X_train_pca_abl, y_train)
-            except:
+                X_train_res_abl, y_train_res_abl = smote.fit_resample(
+                    X_train_pca_abl, y_train
+                )
+            except Exception:
                 X_train_res_abl, y_train_res_abl = X_train_pca_abl, y_train
 
             # Train quick model
@@ -503,7 +519,9 @@ class ModelEvaluator:
                 }
             )
 
-        df_ablation = pd.DataFrame(ablation_results).sort_values("PerformanceDrop", ascending=False)
+        df_ablation = pd.DataFrame(ablation_results).sort_values(
+            "PerformanceDrop", ascending=False
+        )
 
         print("\n" + "=" * 80)
         print(df_ablation.to_string(index=False))
@@ -575,11 +593,13 @@ class ModelEvaluator:
                 X_lopo_train_res, y_lopo_train_res = smote.fit_resample(
                     X_lopo_train_pca, y_lopo_train
                 )
-            except:
+            except Exception:
                 X_lopo_train_res, y_lopo_train_res = X_lopo_train_pca, y_lopo_train
 
             # Train
-            rf_lopo = RandomForestClassifier(n_estimators=100, random_state=random_state, n_jobs=-1)
+            rf_lopo = RandomForestClassifier(
+                n_estimators=100, random_state=random_state, n_jobs=-1
+            )
             rf_lopo.fit(X_lopo_train_res, y_lopo_train_res)
 
             # Evaluate
@@ -615,7 +635,9 @@ class ModelEvaluator:
 
         return df_lopo
 
-    def plot_accuracy_by_pump(self, y_test, y_pred, pump_ids, overall_accuracy, save_path=None):
+    def plot_accuracy_by_pump(
+        self, y_test, y_pred, pump_ids, overall_accuracy, save_path=None
+    ):
         """
         Plot accuracy breakdown by pump ID.
 
@@ -670,7 +692,9 @@ class ModelEvaluator:
         fig, axes = plt.subplots(2, 2, figsize=(15, 10))
 
         # 1. Label distribution
-        df["label"].value_counts().plot(kind="bar", ax=axes[0, 0], color=["green", "red"])
+        df["label"].value_counts().plot(
+            kind="bar", ax=axes[0, 0], color=["green", "red"]
+        )
         axes[0, 0].set_title("Label Distribution", fontsize=12, fontweight="bold")
         axes[0, 0].set_xlabel("Label (0=Normal, 1=Anomaly)")
         axes[0, 0].set_ylabel("Number of Segments")
@@ -705,8 +729,12 @@ class ModelEvaluator:
 
         # 4. Pump ID distribution
         if "pump_id" in df.columns:
-            pump_label_counts = df.groupby(["pump_id", "label"]).size().unstack(fill_value=0)
-            pump_label_counts.plot(kind="bar", ax=axes[1, 1], stacked=True, color=["green", "red"])
+            pump_label_counts = (
+                df.groupby(["pump_id", "label"]).size().unstack(fill_value=0)
+            )
+            pump_label_counts.plot(
+                kind="bar", ax=axes[1, 1], stacked=True, color=["green", "red"]
+            )
             axes[1, 1].set_title("Segments per Pump ID and Label")
             axes[1, 1].set_xlabel("Pump ID")
             axes[1, 1].set_ylabel("Number of Segments")
@@ -719,6 +747,8 @@ class ModelEvaluator:
             import os
 
             os.makedirs(save_dir, exist_ok=True)
-            plt.savefig(os.path.join(save_dir, "eda_analysis.png"), dpi=300, bbox_inches="tight")
+            plt.savefig(
+                os.path.join(save_dir, "eda_analysis.png"), dpi=300, bbox_inches="tight"
+            )
 
         plt.show()

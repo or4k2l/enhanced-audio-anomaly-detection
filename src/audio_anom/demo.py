@@ -1,29 +1,17 @@
 #!/usr/bin/env python3
-"""
-Enhanced demo script showcasing all features of the audio anomaly detection system.
+"""Package-level demo entrypoint.
 
-This script demonstrates:
-- Enhanced feature extraction
-- Multiple model training (Random Forest, XGBoost, Autoencoder)
-- Comprehensive evaluation and visualization
-- Model comparison
+Run with:
+    python -m audio_anom.demo [--data-dir /path/to/wavs]
 """
 
-import sys
-import os
-import numpy as np
-
-from .features import AudioFeatureExtractor
-from .data import AudioDataProcessor
-from .models import RandomForestAnomalyDetector, XGBoostAnomalyDetector
-from .evaluation import ModelEvaluator
+from .train import main as train_main
 
 
 def main():
-    print("=" * 80)
-    print("ENHANCED AUDIO ANOMALY DETECTION - DEMO")
-    print("=" * 80)
-    # ...existing code...
+    """Forward to training CLI so `python -m audio_anom.demo` is useful."""
+    train_main()
+
 
 if __name__ == "__main__":
     main()

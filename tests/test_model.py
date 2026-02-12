@@ -1,5 +1,5 @@
-import pytest
 import numpy as np
+import pytest
 import sys
 from pathlib import Path
 import tempfile
@@ -9,8 +9,8 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 from audio_anom import (
     RandomForestAnomalyDetector,
     XGBoostAnomalyDetector,
-    AutoencoderAnomalyDetector,
 )
+
 
 class TestXGBoostAnomalyDetector:
     def test_initialization(self):
@@ -38,11 +38,8 @@ class TestXGBoostAnomalyDetector:
     def test_predict_unfitted(self):
         detector = XGBoostAnomalyDetector()
         X = np.random.randn(10, 20)
-        try:
+        with pytest.raises(ValueError):
             detector.predict(X)
-            assert False, "Sollte Exception werfen"
-        except Exception:
-            pass
 
     def test_predict_proba(self):
         detector = XGBoostAnomalyDetector()
@@ -92,10 +89,10 @@ class TestXGBoostAnomalyDetector:
         y_train = np.random.randint(0, 2, 100)
         detector.fit(X_train, y_train)
         X_test = np.random.randn(50, 20)
-        y_test = np.random.randint(0, 2, 50)
         pred = detector.predict(X_test)
         assert pred.shape[0] == 50
         assert set(pred).issubset({0, 1})
+
 
 class TestRandomForestAnomalyDetector:
     def test_initialization(self):
@@ -123,11 +120,8 @@ class TestRandomForestAnomalyDetector:
     def test_predict_unfitted(self):
         detector = RandomForestAnomalyDetector()
         X = np.random.randn(10, 20)
-        try:
+        with pytest.raises(ValueError):
             detector.predict(X)
-            assert False, "Sollte Exception werfen"
-        except Exception:
-            pass
 
     def test_predict_proba(self):
         detector = RandomForestAnomalyDetector()
@@ -177,7 +171,6 @@ class TestRandomForestAnomalyDetector:
         y_train = np.random.randint(0, 2, 100)
         detector.fit(X_train, y_train)
         X_test = np.random.randn(50, 20)
-        y_test = np.random.randint(0, 2, 50)
         pred = detector.predict(X_test)
         assert pred.shape[0] == 50
         assert set(pred).issubset({0, 1})

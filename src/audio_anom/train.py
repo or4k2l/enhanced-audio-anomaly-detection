@@ -52,36 +52,48 @@ def train(args):
     train_data, val_data, test_data = data_processor.split_dataset(
         dataset, train_ratio=args.train_ratio, val_ratio=args.val_ratio
     )
-    print(f"Train: {len(train_data)}, Val: {len(val_data)}, Test: {len(test_data)} samples")
+    print(
+        f"Train: {len(train_data)}, Val: {len(val_data)}, Test: {len(test_data)} samples"
+    )
 
     # Extract features
     print("\n[4/8] Extracting enhanced features...")
 
     # Extract features using the enhanced method
     X_train, y_train = [], []
-    for audio, label in train_data:
-        features = feature_extractor.extract_features(audio, enhanced=args.enhanced_features)
+    for _, audio, label in train_data:
+        features = feature_extractor.extract_features(
+            audio, enhanced=args.enhanced_features
+        )
         if features is not None:
             feat_array = np.array([features[k] for k in sorted(features.keys())])
             X_train.append(feat_array)
             # Label-Konvertierung
-            y_train.append(1 if label == "anomaly" else 0 if label == "normal" else label)
+            y_train.append(
+                1 if label == "anomaly" else 0 if label == "normal" else label
+            )
 
     X_val, y_val = [], []
-    for audio, label in val_data:
-        features = feature_extractor.extract_features(audio, enhanced=args.enhanced_features)
+    for _, audio, label in val_data:
+        features = feature_extractor.extract_features(
+            audio, enhanced=args.enhanced_features
+        )
         if features is not None:
             feat_array = np.array([features[k] for k in sorted(features.keys())])
             X_val.append(feat_array)
             y_val.append(1 if label == "anomaly" else 0 if label == "normal" else label)
 
     X_test, y_test = [], []
-    for audio, label in test_data:
-        features = feature_extractor.extract_features(audio, enhanced=args.enhanced_features)
+    for _, audio, label in test_data:
+        features = feature_extractor.extract_features(
+            audio, enhanced=args.enhanced_features
+        )
         if features is not None:
             feat_array = np.array([features[k] for k in sorted(features.keys())])
             X_test.append(feat_array)
-            y_test.append(1 if label == "anomaly" else 0 if label == "normal" else label)
+            y_test.append(
+                1 if label == "anomaly" else 0 if label == "normal" else label
+            )
 
     X_train = np.array(X_train)
     y_train = np.array(y_train)
@@ -146,7 +158,7 @@ def train(args):
                 batch_size=args.batch_size,
                 verbose=0,
             )
-            print(f"  Autoencoder trained successfully")
+            print("  Autoencoder trained successfully")
             models["Autoencoder"] = ae_detector
         except ImportError as e:
             print(f"  Skipping Autoencoder: {e}")
@@ -206,7 +218,9 @@ def train(args):
         print("\n[8/8] Creating visualizations...")
         try:
             evaluator.create_comprehensive_report(
-                models_results, y_test, save_dir=args.output_dir if args.save_plots else None
+                models_results,
+                y_test,
+                save_dir=args.output_dir if args.save_plots else None,
             )
         except Exception as e:
             print(f"Warning: Could not create visualizations: {e}")
@@ -221,7 +235,8 @@ def train(args):
         best_model = models[best_model_name]
 
         model_path = os.path.join(
-            args.output_dir, f"best_model_{best_model_name.replace(' ', '_').lower()}.pkl"
+            args.output_dir,
+            f"best_model_{best_model_name.replace(' ', '_').lower()}.pkl",
         )
         best_model.save(model_path)
         print(f"\nBest model ({best_model_name}) saved to {model_path}")
@@ -244,7 +259,9 @@ def train(args):
 
 def main():
     """Main entry point."""
-    parser = argparse.ArgumentParser(description="Train enhanced audio anomaly detection models")
+    parser = argparse.ArgumentParser(
+        description="Train enhanced audio anomaly detection models"
+    )
 
     # Data arguments
     parser.add_argument(
@@ -253,20 +270,28 @@ def main():
         default="data/pump",
         help="Directory containing audio files",
     )
-    parser.add_argument("--file-pattern", type=str, default="*.wav", help="Audio file pattern")
+    parser.add_argument(
+        "--file-pattern", type=str, default="*.wav", help="Audio file pattern"
+    )
     parser.add_argument(
         "--output-dir", type=str, default="models", help="Output directory for models"
     )
 
     # Audio processing arguments
-    parser.add_argument("--sample-rate", type=int, default=16000, help="Target sample rate")
-    parser.add_argument("--duration", type=float, default=None, help="Target duration in seconds")
+    parser.add_argument(
+        "--sample-rate", type=int, default=16000, help="Target sample rate"
+    )
+    parser.add_argument(
+        "--duration", type=float, default=None, help="Target duration in seconds"
+    )
 
     # Feature extraction arguments
     parser.add_argument("--n-mels", type=int, default=128, help="Number of mel bands")
     parser.add_argument("--n-fft", type=int, default=1024, help="FFT window size")
     parser.add_argument("--hop-length", type=int, default=512, help="Hop length")
-    parser.add_argument("--n-mfcc", type=int, default=20, help="Number of MFCC coefficients")
+    parser.add_argument(
+        "--n-mfcc", type=int, default=20, help="Number of MFCC coefficients"
+    )
     parser.add_argument(
         "--enhanced-features",
         action="store_true",
@@ -275,12 +300,18 @@ def main():
     )
 
     # Training arguments
-    parser.add_argument("--train-ratio", type=float, default=0.7, help="Training data ratio")
-    parser.add_argument("--val-ratio", type=float, default=0.15, help="Validation data ratio")
+    parser.add_argument(
+        "--train-ratio", type=float, default=0.7, help="Training data ratio"
+    )
+    parser.add_argument(
+        "--val-ratio", type=float, default=0.15, help="Validation data ratio"
+    )
     parser.add_argument(
         "--random-state", type=int, default=42, help="Random state for reproducibility"
     )
-    parser.add_argument("--n-splits", type=int, default=5, help="Number of cross-validation splits")
+    parser.add_argument(
+        "--n-splits", type=int, default=5, help="Number of cross-validation splits"
+    )
 
     # Model selection
     parser.add_argument(
@@ -293,24 +324,38 @@ def main():
 
     # Model-specific arguments
     parser.add_argument(
-        "--use-pca", action="store_true", default=True, help="Use PCA for dimensionality reduction"
+        "--use-pca",
+        action="store_true",
+        default=True,
+        help="Use PCA for dimensionality reduction",
     )
-    parser.add_argument("--pca-variance", type=float, default=0.95, help="PCA variance to retain")
     parser.add_argument(
-        "--use-smote", action="store_true", default=True, help="Use SMOTE for class balancing"
+        "--pca-variance", type=float, default=0.95, help="PCA variance to retain"
+    )
+    parser.add_argument(
+        "--use-smote",
+        action="store_true",
+        default=True,
+        help="Use SMOTE for class balancing",
     )
     parser.add_argument(
         "--encoding-dim", type=int, default=10, help="Autoencoder encoding dimension"
     )
-    parser.add_argument("--epochs", type=int, default=50, help="Number of epochs for autoencoder")
-    parser.add_argument("--batch-size", type=int, default=32, help="Batch size for autoencoder")
+    parser.add_argument(
+        "--epochs", type=int, default=50, help="Number of epochs for autoencoder"
+    )
+    parser.add_argument(
+        "--batch-size", type=int, default=32, help="Batch size for autoencoder"
+    )
 
     # Visualization arguments
     parser.add_argument(
         "--visualize", action="store_true", default=True, help="Create visualizations"
     )
     parser.add_argument("--save-plots", action="store_true", help="Save plots to disk")
-    parser.add_argument("--save-all-models", action="store_true", help="Save all trained models")
+    parser.add_argument(
+        "--save-all-models", action="store_true", help="Save all trained models"
+    )
 
     args = parser.parse_args()
     train(args)
