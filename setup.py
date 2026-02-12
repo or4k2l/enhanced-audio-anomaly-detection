@@ -31,6 +31,13 @@ setup(
     ],
     python_requires=">=3.10",
     install_requires=requirements,
+    extras_require={
+        "dev": [
+            "black",
+            "flake8",
+            "pytest",
+        ],
+    },
     entry_points={
         "console_scripts": [
             "audio-anom-train=audio_anom.train:main",

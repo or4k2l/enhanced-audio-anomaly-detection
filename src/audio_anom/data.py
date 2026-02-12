@@ -73,7 +73,7 @@ class AudioDataProcessor:
         """
         print(f"DEBUG: Lade Audiodatei: {file_path}")
         try:
-            audio, sr = sf.read(file_path)
+            audio, sr = sf.read(str(file_path))
             print(f"DEBUG: sf.read erfolgreich, Länge={len(audio)}, SR={sr}")
         except Exception as e:
             print(f"Fehler beim Laden mit sf.read: {e}")
