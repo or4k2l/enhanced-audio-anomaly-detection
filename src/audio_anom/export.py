@@ -77,14 +77,20 @@ class ModelExporter:
         print(f"\n✓ Model package saved to: {output_path}")
         print(f"  - Model: {model_name}")
         print(f"  - Features: {len(feature_cols)}")
-        print(f"  - PCA components: {getattr(pca, 'n_components_', 'N/A') if pca else 'N/A'}")
+        print(
+            f"  - PCA components: {getattr(pca, 'n_components_', 'N/A') if pca else 'N/A'}"
+        )
 
         # Also save a JSON metadata file
         metadata_path = output_path.with_suffix(".json")
         metadata = {
             "model_name": model_name,
             "num_features": len(feature_cols),
-            "pca_components": int(getattr(pca, "n_components_", 0)) if getattr(pca, "n_components_", None) is not None else None,
+            "pca_components": (
+                int(getattr(pca, "n_components_", 0))
+                if getattr(pca, "n_components_", None) is not None
+                else None
+            ),
             "performance": self._sanitize_metrics(performance_metrics),
             "config": self._sanitize_config(config_dict),
         }
@@ -174,7 +180,10 @@ class ModelExporter:
             elif isinstance(v, np.ndarray):
                 result[k] = v.tolist()
             elif isinstance(v, (list, tuple)):
-                result[k] = [float(x) if isinstance(x, (np.integer, np.floating)) else x for x in v]
+                result[k] = [
+                    float(x) if isinstance(x, (np.integer, np.floating)) else x
+                    for x in v
+                ]
             else:
                 result[k] = v
         return result

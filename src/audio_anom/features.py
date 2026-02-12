@@ -8,6 +8,7 @@ from scipy import stats
 
 from typing import Optional, Dict, Any
 
+
 class AudioFeatureExtractor:
     """
     Extrahiert Audio-Features für Anomalieerkennung.
@@ -20,7 +21,14 @@ class AudioFeatureExtractor:
         n_mfcc (int): Anzahl MFCC-Koeffizienten
     """
 
-    def __init__(self, sr: int = 16000, n_mels: int = 128, n_fft: int = 1024, hop_length: int = 512, n_mfcc: int = 20) -> None:
+    def __init__(
+        self,
+        sr: int = 16000,
+        n_mels: int = 128,
+        n_fft: int = 1024,
+        hop_length: int = 512,
+        n_mfcc: int = 20,
+    ) -> None:
         """
         Initialisiert den Feature-Extractor.
 
@@ -136,10 +144,18 @@ class AudioFeatureExtractor:
 
             if total_power > 0:
                 # Spektrales Zentrum (FFT)
-                features["spectral_centroid_fft"] = float(np.sum(xf_pos * power_spectrum) / total_power)
+                features["spectral_centroid_fft"] = float(
+                    np.sum(xf_pos * power_spectrum) / total_power
+                )
                 # Spektrale Streuung
                 features["spectral_spread"] = float(
-                    np.sqrt(np.sum(((xf_pos - features["spectral_centroid_fft"]) ** 2) * power_spectrum) / total_power)
+                    np.sqrt(
+                        np.sum(
+                            ((xf_pos - features["spectral_centroid_fft"]) ** 2)
+                            * power_spectrum
+                        )
+                        / total_power
+                    )
                 )
 
             # Bandenergie für verschiedene Frequenzbänder
@@ -168,7 +184,9 @@ class AudioFeatureExtractor:
         features["spectral_centroid_std"] = float(np.std(spectral_centroid))
 
         # Spektraler Rolloff
-        spectral_rolloff = librosa.feature.spectral_rolloff(y=audio, sr=self.sr, roll_percent=0.85)[0]
+        spectral_rolloff = librosa.feature.spectral_rolloff(
+            y=audio, sr=self.sr, roll_percent=0.85
+        )[0]
         features["spectral_rolloff_mean"] = float(np.mean(spectral_rolloff))
         features["spectral_rolloff_std"] = float(np.std(spectral_rolloff))
 
@@ -207,7 +225,9 @@ class AudioFeatureExtractor:
         stats["zcr"] = stats.get("zcr_mean", 0.0)
         return stats
 
-    def extract_features(self, audio: np.ndarray, enhanced: bool = True) -> Optional[Dict[str, Any]]:
+    def extract_features(
+        self, audio: np.ndarray, enhanced: bool = True
+    ) -> Optional[Dict[str, Any]]:
         """
         Extrahiert alle Features aus einem Audiosignal.
 
@@ -237,7 +257,9 @@ class AudioFeatureExtractor:
             features.update(spectral_features)
 
         # MFCCs (klassisch: Mittelwert und Std über alle MFCCs)
-        mfccs = librosa.feature.mfcc(y=audio, sr=self.sr, n_mfcc=13, hop_length=self.hop_length)
+        mfccs = librosa.feature.mfcc(
+            y=audio, sr=self.sr, n_mfcc=13, hop_length=self.hop_length
+        )
         features["mfcc_mean"] = np.mean(mfccs, axis=1)
         features["mfcc_std"] = np.std(mfccs, axis=1)
         features["mfcc"] = mfccs
@@ -250,7 +272,9 @@ class AudioFeatureExtractor:
 
         return features
 
-    def extract_features_as_array(self, audio: np.ndarray, enhanced: bool = True) -> Optional[np.ndarray]:
+    def extract_features_as_array(
+        self, audio: np.ndarray, enhanced: bool = True
+    ) -> Optional[np.ndarray]:
         """
         Extrahiert Features und gibt sie als flaches Array zurück.
 

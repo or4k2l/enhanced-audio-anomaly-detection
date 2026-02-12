@@ -10,6 +10,7 @@ from audio_anom import (
     XGBoostAnomalyDetector,
 )
 
+
 class TestXGBoostAnomalyDetector:
     def test_initialization(self):
         detector = XGBoostAnomalyDetector(random_state=42)
@@ -93,6 +94,7 @@ class TestXGBoostAnomalyDetector:
         pred = detector.predict(X_test)
         assert pred.shape[0] == 50
         assert set(pred).issubset({0, 1})
+
 
 class TestRandomForestAnomalyDetector:
     def test_initialization(self):

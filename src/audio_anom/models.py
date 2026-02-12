@@ -21,6 +21,7 @@ except ImportError:
 from typing import Any, Dict, Optional
 from abc import ABC, abstractmethod
 
+
 class AnomalyDetector(ABC):
     """
     Abstrakte Basisklasse für Anomalie-Detektoren.
@@ -41,6 +42,7 @@ class AnomalyDetector(ABC):
     def is_fitted(self) -> bool:
         """Gibt zurück, ob das Modell trainiert ist."""
         ...
+
 
 class RandomForestAnomalyDetector(AnomalyDetector):
     """
@@ -122,7 +124,9 @@ class RandomForestAnomalyDetector(AnomalyDetector):
         if use_smote:
             X_resampled, y_resampled = self.smote.fit_resample(X_processed, y)
             if verbose > 0:
-                print(f"  SMOTE: {X_processed.shape[0]} → {X_resampled.shape[0]} samples")
+                print(
+                    f"  SMOTE: {X_processed.shape[0]} → {X_resampled.shape[0]} samples"
+                )
         else:
             X_resampled, y_resampled = X_processed, y
 
@@ -143,7 +147,12 @@ class RandomForestAnomalyDetector(AnomalyDetector):
         )
 
         grid_search = GridSearchCV(
-            rf_model, param_grid, cv=cv_strategy, scoring="f1", verbose=verbose, n_jobs=-1
+            rf_model,
+            param_grid,
+            cv=cv_strategy,
+            scoring="f1",
+            verbose=verbose,
+            n_jobs=-1,
         )
         grid_search.fit(X_resampled, y_resampled)
 
@@ -250,7 +259,14 @@ class XGBoostAnomalyDetector(AnomalyDetector):
         return self._is_fitted
 
     def fit(
-        self, X, y, use_pca=True, pca_variance=0.95, use_smote=True, param_grid=None, verbose=1
+        self,
+        X,
+        y,
+        use_pca=True,
+        pca_variance=0.95,
+        use_smote=True,
+        param_grid=None,
+        verbose=1,
     ):
         """
         Fit the XGBoost detector with optional PCA and SMOTE.
@@ -284,12 +300,16 @@ class XGBoostAnomalyDetector(AnomalyDetector):
         if use_smote:
             X_resampled, y_resampled = self.smote.fit_resample(X_processed, y)
             if verbose > 0:
-                print(f"  SMOTE: {X_processed.shape[0]} → {X_resampled.shape[0]} samples")
+                print(
+                    f"  SMOTE: {X_processed.shape[0]} → {X_resampled.shape[0]} samples"
+                )
         else:
             X_resampled, y_resampled = X_processed, y
 
         # Calculate scale_pos_weight
-        scale_pos_weight = len(y_resampled[y_resampled == 0]) / len(y_resampled[y_resampled == 1])
+        scale_pos_weight = len(y_resampled[y_resampled == 0]) / len(
+            y_resampled[y_resampled == 1]
+        )
 
         # Default parameter grid
         if param_grid is None:
@@ -313,7 +333,12 @@ class XGBoostAnomalyDetector(AnomalyDetector):
         )
 
         grid_search = GridSearchCV(
-            xgb_model, param_grid, cv=cv_strategy, scoring="f1", verbose=verbose, n_jobs=-1
+            xgb_model,
+            param_grid,
+            cv=cv_strategy,
+            scoring="f1",
+            verbose=verbose,
+            n_jobs=-1,
         )
         grid_search.fit(X_resampled, y_resampled)
 
