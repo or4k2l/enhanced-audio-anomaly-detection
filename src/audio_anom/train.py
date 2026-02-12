@@ -146,7 +146,7 @@ def train(args):
                 batch_size=args.batch_size,
                 verbose=0,
             )
-            print(f"  Autoencoder trained successfully")
+            print("  Autoencoder trained successfully")
             models["Autoencoder"] = ae_detector
         except ImportError as e:
             print(f"  Skipping Autoencoder: {e}")

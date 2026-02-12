@@ -8,7 +8,6 @@ import soundfile as sf
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 from audio_anom.features import AudioFeatureExtractor
-from audio_anom.data import AudioDataProcessor
 from audio_anom import RandomForestAnomalyDetector
 
 # Beispielhafte Testdaten (könnten durch echte Dateien ersetzt werden)

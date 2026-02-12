@@ -10,7 +10,6 @@ from sklearn.metrics import (
     roc_auc_score,
     roc_curve,
     confusion_matrix,
-    classification_report,
 )
 
 
@@ -82,7 +81,7 @@ class ModelEvaluator:
 
         # Confusion matrix
         cm = confusion_matrix(y_true, y_pred)
-        print(f"\nConfusion Matrix:")
+        print("\nConfusion Matrix:")
         print(f"  TN: {cm[0,0]:4d}  |  FP: {cm[0,1]:4d}")
         print(f"  FN: {cm[1,0]:4d}  |  TP: {cm[1,1]:4d}")
 
@@ -479,7 +478,7 @@ class ModelEvaluator:
             # SMOTE
             try:
                 X_train_res_abl, y_train_res_abl = smote.fit_resample(X_train_pca_abl, y_train)
-            except:
+            except Exception:
                 X_train_res_abl, y_train_res_abl = X_train_pca_abl, y_train
 
             # Train quick model
@@ -575,7 +574,7 @@ class ModelEvaluator:
                 X_lopo_train_res, y_lopo_train_res = smote.fit_resample(
                     X_lopo_train_pca, y_lopo_train
                 )
-            except:
+            except Exception:
                 X_lopo_train_res, y_lopo_train_res = X_lopo_train_pca, y_lopo_train
 
             # Train

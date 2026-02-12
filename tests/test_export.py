@@ -1,5 +1,3 @@
-import pytest
-import numpy as np
 from audio_anom.export import ModelExporter
 
 class DummyModel:

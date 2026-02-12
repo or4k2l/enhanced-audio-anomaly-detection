@@ -9,14 +9,7 @@ This script demonstrates:
 - Model comparison
 """
 
-import sys
-import os
-import numpy as np
 
-from .features import AudioFeatureExtractor
-from .data import AudioDataProcessor
-from .models import RandomForestAnomalyDetector, XGBoostAnomalyDetector
-from .evaluation import ModelEvaluator
 
 
 def main():

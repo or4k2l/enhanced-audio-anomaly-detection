@@ -10,7 +10,6 @@ from xgboost import XGBClassifier
 import joblib
 
 try:
-    import tensorflow as tf
     from tensorflow import keras
     from tensorflow.keras import layers
 
@@ -19,7 +18,7 @@ except ImportError:
     HAS_TENSORFLOW = False
 
 
-from typing import Any, Dict, Optional, Tuple, Union
+from typing import Any, Dict, Optional
 from abc import ABC, abstractmethod
 
 class AnomalyDetector(ABC):
@@ -382,19 +381,6 @@ class XGBoostAnomalyDetector(AnomalyDetector):
 
 
 class AutoencoderAnomalyDetector(AnomalyDetector):
-    def __init__(self, encoding_dim=10, random_state=42):
-        self.encoding_dim = encoding_dim
-        self.random_state = random_state
-        self.scaler = StandardScaler()
-        self.pca = None
-        self.autoencoder = None
-        self.threshold = None
-        self._is_fitted = False
-
-    @property
-    def is_fitted(self) -> bool:
-        return self._is_fitted
-
     """Autoencoder based anomaly detector for unsupervised learning."""
 
     def __init__(self, encoding_dim=10, random_state=42):

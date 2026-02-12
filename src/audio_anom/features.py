@@ -6,7 +6,7 @@ from scipy.fft import fft, fftfreq
 from scipy import stats
 
 
-from typing import Optional, Dict, Any, Union
+from typing import Optional, Dict, Any
 
 class AudioFeatureExtractor:
     """

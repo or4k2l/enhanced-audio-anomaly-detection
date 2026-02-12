@@ -79,7 +79,7 @@ class AudioDataProcessor:
             print(f"Fehler beim Laden mit sf.read: {e}")
             raise
         if len(audio.shape) > 1:
-            print(f"DEBUG: Mehrkanal, forme zu Mono um.")
+            print("DEBUG: Mehrkanal, forme zu Mono um.")
             audio = np.mean(audio, axis=1)
         if sr != self.sr:
             print(f"DEBUG: Resample von {sr} auf {self.sr}")
@@ -265,7 +265,7 @@ class AudioDataProcessor:
                     continue
 
         df = pd.DataFrame(all_data)
-        print(f"\n✓ Processing complete:")
+        print("\n✓ Processing complete:")
         print(f"  - Normal files: {file_count['normal']}")
         print(f"  - Abnormal files: {file_count['abnormal']}")
         print(f"  - Total segments: {len(df)}")
