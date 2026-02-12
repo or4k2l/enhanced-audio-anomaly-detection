@@ -1,16 +1,18 @@
-import pytest
-import numpy as np
 from audio_anom.export import ModelExporter
+
 
 class DummyModel:
     def __init__(self):
         self.model = None
 
+
 class DummyScaler:
     pass
 
+
 class DummyPCA:
     pass
+
 
 def test_export_model_package(tmp_path):
     exporter = ModelExporter()

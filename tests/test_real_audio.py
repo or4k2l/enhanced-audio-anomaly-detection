@@ -8,17 +8,20 @@ import soundfile as sf
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 from audio_anom.features import AudioFeatureExtractor
-from audio_anom.data import AudioDataProcessor
 from audio_anom import RandomForestAnomalyDetector
 
 # Beispielhafte Testdaten (könnten durch echte Dateien ersetzt werden)
 TEST_AUDIO_DIR = Path(__file__).parent / "real_audio"
 
-@pytest.mark.parametrize("filename,expected_min,expected_max", [
-    ("speech_sample.wav", -1.0, 1.0),
-    ("music_sample.wav", -1.0, 1.0),
-    ("silence.wav", -0.01, 0.01),
-])
+
+@pytest.mark.parametrize(
+    "filename,expected_min,expected_max",
+    [
+        ("speech_sample.wav", -1.0, 1.0),
+        ("music_sample.wav", -1.0, 1.0),
+        ("silence.wav", -0.01, 0.01),
+    ],
+)
 def test_feature_extraction_on_real_audio(filename, expected_min, expected_max):
     """
     Testet die Feature-Extraktion auf echten Audiodateien.
@@ -54,9 +57,14 @@ def test_model_on_real_audio():
         y.append(0)
         X.append(extractor.extract_features(anomaly))
         y.append(1)
-    X = np.array([np.concatenate([
-        x["mel_spec_mean"], x["mel_spec_std"], x["mfcc_mean"], x["mfcc_std"]
-    ]) for x in X])
+    X = np.array(
+        [
+            np.concatenate(
+                [x["mel_spec_mean"], x["mel_spec_std"], x["mfcc_mean"], x["mfcc_std"]]
+            )
+            for x in X
+        ]
+    )
     y = np.array(y)
     model = RandomForestAnomalyDetector()
     model.fit(X, y)

@@ -80,11 +80,17 @@ class TestAudioDataProcessor:
 
         # Create dummy dataset
         dataset = [
-            (f"file_{i}.wav", np.random.randn(1000), "normal" if i % 2 == 0 else "anomaly")
+            (
+                f"file_{i}.wav",
+                np.random.randn(1000),
+                "normal" if i % 2 == 0 else "anomaly",
+            )
             for i in range(100)
         ]
 
-        train, val, test = processor.split_dataset(dataset, train_ratio=0.7, val_ratio=0.15)
+        train, val, test = processor.split_dataset(
+            dataset, train_ratio=0.7, val_ratio=0.15
+        )
 
         assert len(train) == 70
         assert len(val) == 15

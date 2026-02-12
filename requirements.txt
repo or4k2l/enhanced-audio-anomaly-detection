@@ -8,7 +8,6 @@ librosa
 soundfile
 imbalanced-learn
 xgboost
-tensorflow
 kagglehub
 pytest
 flake8
