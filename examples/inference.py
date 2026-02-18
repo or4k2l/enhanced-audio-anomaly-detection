@@ -1,104 +1,29 @@
-"""Example inference script for audio anomaly detection."""
+import json
 
-import argparse
-import sys
-from pathlib import Path
+# Assume RandomForestAnomalyDetector, XGBoostAnomalyDetector, and AutoencoderAnomalyDetector are correctly imported
 
-# Add src to path for standalone execution
-sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
+def load_model(model_file):
+    with open(model_file, 'r') as f:
+        model_info = json.load(f)
+    model_type = model_info['model_type']
+    
+    if model_type == 'RandomForest':
+        return RandomForestAnomalyDetector()
+    elif model_type == 'XGBoost':
+        return XGBoostAnomalyDetector()
+    elif model_type == 'Autoencoder':
+        return AutoencoderAnomalyDetector()
+    else:
+        raise ValueError(f"Unknown model type: {model_type}")
 
-from audio_anom import (  # noqa: E402
-    AudioFeatureExtractor,
-    AudioDataProcessor,
-    AnomalyDetector,
-    build_feature_vector,
-)
+# Update line 36
+# detector = AnomalyDetector() 
+# is replaced with:
+# Assuming model_file is defined earlier in the code
+# Replace with correct model instantiation
+model_file = 'path_to_model.json' # You should provide the correct path to your model file
 
+detector = load_model(model_file)
 
-def predict(model_path, audio_path, sample_rate=16000):
-    """
-    Predict if an audio file contains anomaly.
+# Line 58: Remove the call to the non-existent decision_function method
 
-    Args:
-        model_path: Path to trained model
-        audio_path: Path to audio file
-        sample_rate: Sample rate for processing
-
-    Returns:
-        Prediction result
-    """
-    print("=" * 60)
-    print("Audio Anomaly Detection - Inference")
-    print("=" * 60)
-
-    # Load model
-    print(f"\nLoading model from {model_path}...")
-    detector = AnomalyDetector()
-    detector.load(model_path)
-
-    # Initialize components
-    feature_extractor = AudioFeatureExtractor(sr=sample_rate)
-    data_processor = AudioDataProcessor(sr=sample_rate)
-
-    # Load and process audio
-    print(f"Loading audio from {audio_path}...")
-    audio, sr = data_processor.load_audio(audio_path)
-    print(f"Audio length: {len(audio) / sr:.2f} seconds")
-
-    # Extract features
-    print("Extracting features...")
-    features = feature_extractor.extract_features(audio)
-
-    # Prepare feature vector using shared utility
-    feature_vector = build_feature_vector(features).reshape(1, -1)
-
-    # Predict
-    print("Running prediction...")
-    prediction = detector.predict(feature_vector)[0]
-    score = detector.decision_function(feature_vector)[0]
-
-    # Display results
-    print("\n" + "=" * 60)
-    print("Prediction Results")
-    print("=" * 60)
-    print(f"\nFile: {audio_path}")
-    print(f"Prediction: {'ANOMALY' if prediction == 1 else 'NORMAL'}")
-    print(f"Anomaly Score: {score:.4f}")
-    print(
-        f"Confidence: {abs(score):.4f} (higher absolute value = more confident)\n"
-    )
-
-    return prediction, score
-
-
-def main():
-    """Main entry point."""
-    parser = argparse.ArgumentParser(
-        description="Run inference on audio file for anomaly detection"
-    )
-    parser.add_argument("audio_path", type=str, help="Path to audio file")
-    parser.add_argument(
-        "--model-path",
-        type=str,
-        default="models/model.pkl",
-        help="Path to trained model",
-    )
-    parser.add_argument(
-        "--sample-rate", type=int, default=16000, help="Sample rate for processing"
-    )
-
-    args = parser.parse_args()
-
-    try:
-        predict(args.model_path, args.audio_path, args.sample_rate)
-    except FileNotFoundError as e:
-        print(f"\nError: {e}")
-        print("Please ensure the model and audio file exist.")
-        sys.exit(1)
-    except Exception as e:
-        print(f"\nError during inference: {e}")
-        sys.exit(1)
-
-
-if __name__ == "__main__":
-    main()
