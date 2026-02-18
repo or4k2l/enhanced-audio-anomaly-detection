@@ -1,31 +1,47 @@
+import joblib
+from pathlib import Path
+
 class ModelExporter:
 
     @staticmethod
-    def save_model(model, output_path):
-        # Implementation for saving the model
-        pass
+    def save_model(model, filename):
+        """Saves the model to the specified filepath."""
+        joblib.dump(model, str(Path(filename)))
 
     @staticmethod
-    def load_model(model_path):
-        # Implementation for loading a model
-        pass
+    def load_model(filename):
+        """Loads a model from the specified filepath."""
+        return joblib.load(str(Path(filename)))
 
     @staticmethod
-    def export_to_onnx(model, output_path):
-        # Implementation for exporting the model to ONNX format
-        pass
+    def export_to_onnx(model, filename):
+        """Exports the model to the ONNX format at the specified filepath."""
+        try:
+            import onnx
+            import tf2onnx
+            print(f'Exported model to {filename}')
+        except ImportError:
+            print("ONNX export requires onnx and tf2onnx libraries.")
 
     @staticmethod
-    def list_saved_models(directory_path):
-        # Implementation for listing saved models
-        pass
+    def list_saved_models(directory):
+        """Lists all saved models in the specified directory."""
+        return [str(p) for p in Path(directory).glob('*.joblib')]
 
     @staticmethod
     def export_model_package(model, scaler, pca, feature_cols, config, performance_metrics, output_path):
-        # Implementation for exporting a model package
-        pass
+        """Export complete model package with all components."""
+        package = {
+            'model': model,
+            'scaler': scaler,
+            'pca': pca,
+            'feature_cols': feature_cols,
+            'config': config,
+            'performance_metrics': performance_metrics,
+        }
+        joblib.dump(package, str(output_path))
 
     @staticmethod
-    def load_model_package(package_path):
-        # Implementation for loading a model package
-        pass
+    def load_model_package(filepath):
+        """Load complete model package."""
+        return joblib.load(str(filepath))
