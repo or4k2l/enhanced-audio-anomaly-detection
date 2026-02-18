@@ -1,0 +1,80 @@
+name: Test Unsupervised Anomaly Detection
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'src/audio_anom/unsupervised_*.py'
+      - 'src/audio_anom/evaluation_unsupervised.py'
+      - 'src/audio_anom/visualization_unsupervised.py'
+      - 'src/audio_anom/preprocessing_unsupervised.py'
+      - 'tests/test_unsupervised_*.py'
+      - 'tests/test_dc2020_*.py'
+      - 'scripts/train_unsupervised.py'
+      - 'scripts/evaluate_dc2020.py'
+      - 'scripts/deploy_production.py'
+      - '.github/workflows/test_unsupervised.yml'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'src/audio_anom/unsupervised_*.py'
+      - 'src/audio_anom/evaluation_unsupervised.py'
+      - 'src/audio_anom/visualization_unsupervised.py'
+      - 'src/audio_anom/preprocessing_unsupervised.py'
+      - 'tests/test_unsupervised_*.py'
+      - 'tests/test_dc2020_*.py'
+      - 'scripts/train_unsupervised.py'
+      - 'scripts/evaluate_dc2020.py'
+      - 'scripts/deploy_production.py'
+      - '.github/workflows/test_unsupervised.yml'
+
+jobs:
+  test-unsupervised:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.8', '3.9', '3.10', '3.11']
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+      
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libsndfile1 ffmpeg
+      
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -q -r requirements.txt
+          pip install -q pytest pytest-cov
+      
+      - name: Run unsupervised methods tests
+        run: |
+          pytest tests/test_unsupervised_methods.py -v --cov=audio_anom --cov-report=term-missing
+      
+      - name: Run DC2020 integration tests
+        run: |
+          pytest tests/test_dc2020_integration.py -v --cov=audio_anom --cov-append --cov-report=term-missing
+      
+      - name: Test training script (dry run with synthetic data)
+        run: |
+          python scripts/train_unsupervised.py --machine fan --output /tmp/test_models
+      
+      - name: Test evaluation script (dry run)
+        run: |
+          python scripts/evaluate_dc2020.py --machines fan pump --output /tmp/test_results.csv
+      
+      - name: Upload coverage reports
+        if: matrix.python-version == '3.10'
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./coverage.xml
+          flags: unsupervised
+          name: unsupervised-coverage
