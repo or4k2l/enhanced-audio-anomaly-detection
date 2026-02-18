@@ -1,7 +1,17 @@
 import joblib
 import numpy as np
 
-class RandomForestAnomalyDetector:
+class AnomalyDetector:
+    def fit(self, X, y):
+        raise NotImplementedError
+
+    def predict(self, X):
+        raise NotImplementedError
+
+    def predict_proba(self, X):
+        raise NotImplementedError
+
+class RandomForestAnomalyDetector(AnomalyDetector):
     def __init__(self, random_state=None):
         self.random_state = random_state
         self.model = None
@@ -15,11 +25,7 @@ class RandomForestAnomalyDetector:
         self.best_estimator_ = self.model
 
     def save(self, file_path):
-        joblib.dump({
-            'best_estimator_': self.best_estimator_,
-            'random_state': self.random_state,
-            'is_fitted': self.is_fitted,
-        }, file_path)
+        joblib.dump({'best_estimator_': self.best_estimator_, 'random_state': self.random_state, 'is_fitted': self.is_fitted}, file_path)
 
     def load(self, file_path):
         data = joblib.load(file_path)
@@ -32,7 +38,12 @@ class RandomForestAnomalyDetector:
             raise Exception('Model is not fitted yet. Call fit() before predicting.')
         return self.best_estimator_.predict(X)
 
-class XGBoostAnomalyDetector:
+    def predict_proba(self, X):
+        if not self.is_fitted:
+            raise Exception('Model is not fitted yet. Call fit() before predicting.')
+        return self.best_estimator_.predict_proba(X)
+
+class XGBoostAnomalyDetector(AnomalyDetector):
     def __init__(self, random_state=None):
         self.random_state = random_state
         self.model = None
@@ -40,17 +51,13 @@ class XGBoostAnomalyDetector:
 
     def fit(self, X, y):
         import xgboost as xgb
-        self.model = xgb.XGBClassifier(random_state=self.random_state)
+        self.model = xgb.XGBClassifier(random_state=self.random_state, use_label_encoder=False, eval_metric='logloss')
         self.model.fit(X, y)
         self.is_fitted = True
         self.best_estimator_ = self.model
 
     def save(self, file_path):
-        joblib.dump({
-            'best_estimator_': self.best_estimator_,
-            'random_state': self.random_state,
-            'is_fitted': self.is_fitted,
-        }, file_path)
+        joblib.dump({'best_estimator_': self.best_estimator_, 'random_state': self.random_state, 'is_fitted': self.is_fitted}, file_path)
 
     def load(self, file_path):
         data = joblib.load(file_path)
@@ -63,7 +70,12 @@ class XGBoostAnomalyDetector:
             raise Exception('Model is not fitted yet. Call fit() before predicting.')
         return self.best_estimator_.predict(X)
 
-class AutoencoderAnomalyDetector:
+    def predict_proba(self, X):
+        if not self.is_fitted:
+            raise Exception('Model is not fitted yet. Call fit() before predicting.')
+        return self.best_estimator_.predict_proba(X)
+
+class AutoencoderAnomalyDetector(AnomalyDetector):
     def __init__(self, random_state=None):
         self.random_state = random_state
         self.model = None
@@ -80,11 +92,7 @@ class AutoencoderAnomalyDetector:
         self.is_fitted = True
 
     def save(self, file_path):
-        joblib.dump({
-            'best_estimator_': self.model,
-            'random_state': self.random_state,
-            'is_fitted': self.is_fitted,
-        }, file_path)
+        joblib.dump({'best_estimator_': self.model, 'random_state': self.random_state, 'is_fitted': self.is_fitted}, file_path)
 
     def load(self, file_path):
         data = joblib.load(file_path)
@@ -95,5 +103,5 @@ class AutoencoderAnomalyDetector:
     def predict(self, X):
         if not self.is_fitted:
             raise Exception('Model is not fitted yet. Call fit() before predicting.')
-        reconstructed = self.model.predict(X)
+        reconstructed = self.model.predict(X, verbose=0)
         return np.mean(np.power(X - reconstructed, 2), axis=1)
