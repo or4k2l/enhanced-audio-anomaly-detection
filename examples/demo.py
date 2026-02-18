@@ -1,29 +1,58 @@
+# examples/demo.py
+
+from audio_anom import (
+    AudioFeatureExtractor,
+    AudioDataProcessor,
+    RandomForestAnomalyDetector,
+    XGBoostAnomalyDetector,
+    AutoencoderAnomalyDetector,
+    ModelEvaluator
+)
 import numpy as np
 
-from enhanced_audio_anomaly_detection.audio_feature_extractor import AudioFeatureExtractor
-from enhanced_audio_anomaly_detection.audio_data_processor import AudioDataProcessor
-from enhanced_audio_anomaly_detection.random_forest_anomaly_detector import RandomForestAnomalyDetector
-from enhanced_audio_anomaly_detection.xgboost_anomaly_detector import XGBoostAnomalyDetector
-from enhanced_audio_anomaly_detection.model_evaluator import ModelEvaluator
+def generate_synthetic_data(num_samples=1000, num_features=10):
+    """Generate synthetic audio data for demo purposes."""
+    return np.random.rand(num_samples, num_features)
 
-# Synthetic Data Generation for Standalone Testing
+def main():
+    try:
+        # Step 1: Generate synthetic data
+        synthetic_data = generate_synthetic_data()
+        print("Synthetic data generated.")
 
-def generate_synthetic_data(num_samples=1000):
-    """Generates synthetic audio features and labels for testing."""
-    features = np.random.rand(num_samples, 10)  # 10 features
-    labels = np.random.choice([0, 1], size=num_samples)  # Binary labels
-    return features, labels
+        # Step 2: Extract features from the audio data
+        feature_extractor = AudioFeatureExtractor()
+        features = feature_extractor.extract_features(synthetic_data)
+        print("Features extracted.")
 
-if __name__ == '__main__':
-    # Generate synthetic data
-    features, labels = generate_synthetic_data()
-    
-    # Initialize components
-    feature_extractor = AudioFeatureExtractor()
-    data_processor = AudioDataProcessor()
-    detector_rf = RandomForestAnomalyDetector()
-    detector_xgb = XGBoostAnomalyDetector()
-    evaluator = ModelEvaluator()
+        # Step 3: Process the data
+        data_processor = AudioDataProcessor()
+        processed_data = data_processor.process(features)
+        print("Data processed.")
 
-    # Process data and run anomaly detection
-    # ... (rest of your testing code here) 
+        # Step 4: Train and evaluate different anomaly detectors
+        rf_detector = RandomForestAnomalyDetector()
+        xgb_detector = XGBoostAnomalyDetector()
+        autoencoder_detector = AutoencoderAnomalyDetector()
+
+        # Assuming we have a method to train these detectors
+        rf_detector.train(processed_data)
+        xgb_detector.train(processed_data)
+        autoencoder_detector.train(processed_data)
+
+        # Evaluate model performance
+        evaluator = ModelEvaluator()
+        rf_results = evaluator.evaluate(rf_detector, processed_data)
+        xgb_results = evaluator.evaluate(xgb_detector, processed_data)
+        ae_results = evaluator.evaluate(autoencoder_detector, processed_data)
+
+        # Print results
+        print("RF Results:", rf_results)
+        print("XGBoost Results:", xgb_results)
+        print("Autoencoder Results:", ae_results)
+
+    except Exception as e:
+        print(f"An error occurred: {e}")
+
+if __name__ == "__main__":
+    main()
