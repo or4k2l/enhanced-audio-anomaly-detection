@@ -1,78 +1,29 @@
 import numpy as np
-import pandas as pd
-from audio_anom import feature_extraction, model_training, evaluation
-import matplotlib.pyplot as plt
 
-# Load the dataset
-try:
-    print('📥 Loading dataset...')
-    dataset = pd.read_csv('path/to/your/dataset.csv')  # Update with your dataset path
-    print('✅ Dataset loaded successfully')
-except Exception as e:
-    print(f'❌ Error loading dataset: {str(e)}')
-    exit()
+from enhanced_audio_anomaly_detection.audio_feature_extractor import AudioFeatureExtractor
+from enhanced_audio_anomaly_detection.audio_data_processor import AudioDataProcessor
+from enhanced_audio_anomaly_detection.random_forest_anomaly_detector import RandomForestAnomalyDetector
+from enhanced_audio_anomaly_detection.xgboost_anomaly_detector import XGBoostAnomalyDetector
+from enhanced_audio_anomaly_detection.model_evaluator import ModelEvaluator
 
-# Split the dataset
-try:
-    print('🔍 Splitting dataset...')
-    train_data, test_data = model_training.split_dataset(dataset)
-    print('✅ Dataset split into training and testing sets')
-except Exception as e:
-    print(f'❌ Error splitting dataset: {str(e)}')
-    exit()
+# Synthetic Data Generation for Standalone Testing
 
-# Feature extraction
-try:
-    print('🔧 Extracting features...')
-    X_train, y_train = feature_extraction.extract_features(train_data)
-    X_test, y_test = feature_extraction.extract_features(test_data)
-    print('✅ Features extracted successfully')
-except Exception as e:
-    print(f'❌ Error during feature extraction: {str(e)}')
-    exit()
+def generate_synthetic_data(num_samples=1000):
+    """Generates synthetic audio features and labels for testing."""
+    features = np.random.rand(num_samples, 10)  # 10 features
+    labels = np.random.choice([0, 1], size=num_samples)  # Binary labels
+    return features, labels
 
-# Model training with Random Forest
-try:
-    print('🛠️ Training Random Forest model...')
-    rf_model = model_training.train_random_forest(X_train, y_train)
-    print('✅ Random Forest model trained successfully')
-except Exception as e:
-    print(f'❌ Error during Random Forest training: {str(e)}')
-    exit()
+if __name__ == '__main__':
+    # Generate synthetic data
+    features, labels = generate_synthetic_data()
+    
+    # Initialize components
+    feature_extractor = AudioFeatureExtractor()
+    data_processor = AudioDataProcessor()
+    detector_rf = RandomForestAnomalyDetector()
+    detector_xgb = XGBoostAnomalyDetector()
+    evaluator = ModelEvaluator()
 
-# Model training with XGBoost
-try:
-    print('🛠️ Training XGBoost model...')
-    xgb_model = model_training.train_xgboost(X_train, y_train)
-    print('✅ XGBoost model trained successfully')
-except Exception as e:
-    print(f'❌ Error during XGBoost training: {str(e)}')
-    exit()
-
-# Evaluation
-try:
-    print('📊 Evaluating models...')
-    rf_results = evaluation.evaluate_model(rf_model, X_test, y_test)
-    xgb_results = evaluation.evaluate_model(xgb_model, X_test, y_test)
-    print('✅ Model evaluation completed')
-except Exception as e:
-    print(f'❌ Error during model evaluation: {str(e)}')
-    exit()
-
-# Visualization
-try:
-    print('📈 Visualizing results...')
-    plt.figure(figsize=(10, 5))
-    plt.plot(rf_results['metric'], label='Random Forest')
-    plt.plot(xgb_results['metric'], label='XGBoost')
-    plt.title('Model Evaluation Metrics')
-    plt.xlabel('Metric')
-    plt.ylabel('Value')
-    plt.legend()
-    plt.show()
-    print('✅ Visualization completed')
-except Exception as e:
-    print(f'❌ Error during visualization: {str(e)}')
-    exit()  
-
-print('🎉 Script completed successfully!')
+    # Process data and run anomaly detection
+    # ... (rest of your testing code here) 
