@@ -1,31 +1,14 @@
 import joblib
-from pathlib import Path
 
 class ModelExporter:
-
     @staticmethod
-    def save_model(model, filename):
-        joblib.dump(model, Path(filename))
-
-    @staticmethod
-    def load_model(filename):
-        return joblib.load(Path(filename))
-
-    @staticmethod
-    def export_to_onnx(model, filename):
-        # Implement export logic here
-        pass
-
-    @staticmethod
-    def list_saved_models(directory):
-        return [str(p) for p in Path(directory).glob('*.joblib')]
-
-    @staticmethod
-    def export_model_package(model, package_name):
-        # Implement package export logic here
-        pass
-
-    @staticmethod
-    def load_model_package(package_name):
-        # Implement package loading logic here
-        pass
+    def export_model_package(model, scaler, pca, feature_cols, config, performance_metrics, output_path):
+        package_dict = {
+            'model': model,
+            'scaler': scaler,
+            'pca': pca,
+            'feature_columns': feature_cols,
+            'config': config,
+            'performance_metrics': performance_metrics
+        }
+        joblib.dump(package_dict, str(output_path))
