@@ -25,7 +25,7 @@ import json
 import numpy as np
 import pandas as pd
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple, Any
 from datetime import datetime
 
 # Add parent directory to path
@@ -90,7 +90,7 @@ class AnomalyDetectionPipeline:
         
         logger.info("Pipeline initialized successfully!")
         
-    def process_audio_file(self, audio_path: str) -> Dict[str, any]:
+    def process_audio_file(self, audio_path: str) -> Dict[str, Any]:
         """Process a single audio file and return prediction.
         
         Args:
@@ -158,7 +158,7 @@ class AnomalyDetectionPipeline:
                 'alert': False,
             }
     
-    def process_batch(self, audio_paths: List[str]) -> List[Dict[str, any]]:
+    def process_batch(self, audio_paths: List[str]) -> List[Dict[str, Any]]:
         """Process multiple audio files.
         
         Args:

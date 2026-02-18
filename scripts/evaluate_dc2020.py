@@ -14,7 +14,7 @@ import sys
 import numpy as np
 import pandas as pd
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 # Add parent directory to path
 sys.path.insert(0, str(Path(__file__).parent.parent / 'src'))
@@ -247,5 +247,4 @@ def main():
 
 
 if __name__ == "__main__":
-    from typing import Optional
     main()
