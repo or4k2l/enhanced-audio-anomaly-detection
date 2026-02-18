@@ -2,30 +2,26 @@ import joblib
 import os
 
 class ModelExporter:
-    @staticmethod
-    def save_model(model, filepath):
-        """Saves the model to the specified filepath."""
-        joblib.dump(model, filepath)
+    def save_model(self, model, output_path):
+        # Save the model using joblib
+        joblib.dump(model, output_path)
 
-    @staticmethod
-    def load_model(filepath):
-        """Loads a model from the specified filepath."""
-        return joblib.load(filepath)
+    def load_model(self, input_path):
+        # Load the model using joblib
+        return joblib.load(input_path)
 
-    @staticmethod
-    def export_to_onnx(model, filepath):
-        """Exports the model to the ONNX format at the specified filepath."""
-        try:
-            import onnx
-            import tf2onnx  # or an equivalent library depending on model type
-            # Convert the model to ONNX format
-            # Placeholder for actual conversion logic
-            # tf2onnx.convert.from_keras(model, output_path=filepath)
-            print(f'Exported model to {filepath}')
-        except ImportError:
-            print("ONNX export requires onnx and tf2onnx libraries.")
+    def export_to_onnx(self, model, output_path):
+        # Implement export to ONNX logic here
+        pass
 
-    @staticmethod
-    def list_saved_models(directory):
-        """Lists all saved models in the specified directory."""
-        return [f for f in os.listdir(directory) if os.path.isfile(os.path.join(directory, f))]
+    def list_saved_models(self, directory):
+        # List saved models in the specified directory
+        return os.listdir(directory)
+
+    def export_model_package(self, model, scaler, pca, feature_cols, config, performance_metrics, output_path):
+        # Logic to export the model package
+        pass
+
+    def load_model_package(self, package_path):
+        # Logic to load the model package
+        pass
