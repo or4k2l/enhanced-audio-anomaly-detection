@@ -6,19 +6,47 @@ class ModelExporter:
 
     @staticmethod
     def save_model(model, filename):
+        """Save a model to disk using joblib.
+
+        Args:
+            model: The model object to save.
+            filename: Path to the output file.
+        """
         joblib.dump(model, str(Path(filename)))
 
     @staticmethod
     def load_model(filename):
+        """Load a model from disk using joblib.
+
+        Args:
+            filename: Path to the model file.
+
+        Returns:
+            The loaded model object.
+        """
         return joblib.load(str(Path(filename)))
 
     @staticmethod
     def export_to_onnx(model, filename):
+        """Export model to ONNX format (placeholder).
+
+        Args:
+            model: The model object to export.
+            filename: Path to the output ONNX file.
+        """
         # Implement export logic here
         pass
 
     @staticmethod
     def list_saved_models(directory):
+        """List all saved model files in a directory.
+
+        Args:
+            directory: Path to the directory to search.
+
+        Returns:
+            List of paths to .joblib files as strings.
+        """
         return [str(p) for p in Path(directory).glob('*.joblib')]
 
     @staticmethod
