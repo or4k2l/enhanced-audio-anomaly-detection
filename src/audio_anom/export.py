@@ -1,4 +1,40 @@
-# File content from commit 16bec707a9f20fe16ff14de9a913b6fe6e0765a1
-# This content should be retrieved from the specified commit.
+import joblib
+from pathlib import Path
 
-# Placeholder for the actual content of src/audio_anom/export.py
+
+class ModelExporter:
+
+    @staticmethod
+    def save_model(model, filename):
+        joblib.dump(model, str(Path(filename)))
+
+    @staticmethod
+    def load_model(filename):
+        return joblib.load(str(Path(filename)))
+
+    @staticmethod
+    def export_to_onnx(model, filename):
+        # Implement export logic here
+        pass
+
+    @staticmethod
+    def list_saved_models(directory):
+        return [str(p) for p in Path(directory).glob('*.joblib')]
+
+    @staticmethod
+    def export_model_package(model, scaler, pca, feature_cols, config, performance_metrics, output_path):
+        """Export complete model package with all components."""
+        package = {
+            'model': model,
+            'scaler': scaler,
+            'pca': pca,
+            'feature_cols': feature_cols,
+            'config': config,
+            'performance_metrics': performance_metrics,
+        }
+        joblib.dump(package, str(output_path))
+
+    @staticmethod
+    def load_model_package(filepath):
+        """Load complete model package."""
+        return joblib.load(str(filepath))
