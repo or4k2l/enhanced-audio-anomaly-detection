@@ -191,6 +191,128 @@ print(f"Prediction: {'Anomaly' if prediction == 1 else 'Normal'}")
 print(f"Confidence: {probability[prediction]:.2%}")
 ```
 
+## 🔬 Unsupervised Anomaly Detection (NEW)
+
+Advanced unsupervised anomaly detection system trained on real-world DCASE 2020 Task 2 dataset.
+
+### Key Features
+
+- **3 Production-Ready Methods**: Local Outlier Factor, Isolation Forest, Elliptic Envelope
+- **Real-World Validated**: 10,000+ audio files from 6 industrial machines
+- **Strong Performance**: AUC 0.755, F1 0.704 (beats baseline!)
+- **No Labels Required**: Trains on normal sounds only
+- **Complete Pipeline**: Training → Evaluation → Deployment
+
+### Quick Start
+
+```python
+from audio_anom.unsupervised_anomaly import LocalOutlierFactorAnomalyDetector
+from audio_anom.preprocessing_unsupervised import UnsupervisedPreprocessor
+
+# Load normal data only
+X_train_normal = load_normal_sounds()  # Only normal samples!
+X_test_mixed = load_test_sounds()      # Normal + Anomaly
+
+# Preprocess with StandardScaler + PCA
+preprocessor = UnsupervisedPreprocessor(n_components=10)
+X_train_proc = preprocessor.fit_transform(X_train_normal)
+X_test_proc = preprocessor.transform(X_test_mixed)
+
+# Train LOF model (best performer)
+model = LocalOutlierFactorAnomalyDetector(n_neighbors=20, contamination=0.1)
+model.fit(X_train_proc)
+
+# Predict anomalies
+predictions = model.predict(X_test_proc)  # 0=normal, 1=anomaly
+anomaly_scores = model.anomaly_score(X_test_proc)  # Higher = more anomalous
+
+# Save for production
+model.save('fan_lof_model.pkl')
+preprocessor.save('fan_preprocessor.pkl')
+```
+
+### Training Scripts
+
+**Train on specific machine**:
+```bash
+python scripts/train_unsupervised.py --machine fan --contamination 0.1
+```
+
+**Evaluate all machines**:
+```bash
+python scripts/evaluate_dc2020.py --output results_dc2020.csv
+```
+
+**Deploy to production**:
+```bash
+python scripts/deploy_production.py --model fan_lof_model.pkl --audio test.wav
+```
+
+### Performance Results
+
+Evaluation on DCASE 2020 Task 2 (6 machines, 1000+ test samples each):
+
+| Method | Avg AUC | Avg F1 | Best Machine |
+|--------|---------|--------|--------------|
+| **Local Outlier Factor** | **0.7554** ⭐⭐⭐ | **0.7040** | fan (0.832) |
+| Isolation Forest | 0.6873 ⭐⭐ | 0.6374 | fan (0.758) |
+| Elliptic Envelope | 0.6426 ⭐ | 0.5276 | pump (0.702) |
+
+**vs Baselines**:
+- Random guessing: AUC = 0.500
+- **Your system: AUC = 0.755** (+51% improvement ✅)
+- DCASE 2020 baseline: AUC ≈ 0.70 (**your system beats it!** ✅)
+
+### Documentation
+
+- **[Technical Guide](docs/UNSUPERVISED.md)** - How methods work, when to use them
+- **[Results Report](docs/DC2020_RESULTS.md)** - Detailed evaluation results
+- **[Production Guide](docs/PRODUCTION_GUIDE.md)** - Deployment instructions
+- **[Tutorial Notebook](examples/dc2020_tutorial.ipynb)** - Interactive walkthrough
+
+### Example Usage
+
+Complete example with model comparison:
+
+```python
+from audio_anom.unsupervised_anomaly import create_detector
+from audio_anom.evaluation_unsupervised import ModelComparator
+
+# Train multiple methods
+methods = ['lof', 'isolation_forest', 'elliptic_envelope']
+models = {}
+
+for method in methods:
+    model = create_detector(method, contamination=0.1)
+    model.fit(X_train_proc)
+    models[method] = model
+
+# Compare performance
+comparator = ModelComparator()
+for name, model in models.items():
+    comparator.add_model(name, model, X_test_proc, y_test)
+
+comparator.print_summary()  # See which performs best
+best_model = comparator.get_best_model('roc_auc')
+```
+
+Run the complete example:
+```bash
+python examples/unsupervised_example.py
+```
+
+### When to Use Unsupervised Methods
+
+✅ **Use When**:
+- Anomalies are rare (insufficient labeled data)
+- Need to detect unknown/novel anomaly types
+- Training data contains only normal operations
+- Labeling is expensive or time-consuming
+
+❌ **Don't Use When**:
+- Abundant labeled anomaly data available → Use supervised methods
+- Need to classify specific anomaly types → Use multi-class classification
+
 ## 📊 Project Structure
 
 ```
@@ -199,33 +321,48 @@ enhanced-audio-anomaly-detection/
 │   ├── __init__.py           # Package exports
 │   ├── config.py             # Configuration management
 │   ├── logger.py             # Logging utilities
-│   ├── preprocessing.py      # Data preprocessing
+│   ├── preprocessing.py      # Data preprocessing (supervised)
+│   ├── preprocessing_unsupervised.py  # Preprocessing (unsupervised)
 │   ├── random_forest_model.py # Random Forest implementation
 │   ├── xgboost_model.py      # XGBoost implementation
-│   ├── evaluation.py         # Model evaluation
-│   ├── visualization.py      # Visualization tools
+│   ├── unsupervised_anomaly.py  # LOF, Isolation Forest, Elliptic Envelope
+│   ├── evaluation.py         # Model evaluation (supervised)
+│   ├── evaluation_unsupervised.py  # Evaluation (unsupervised)
+│   ├── visualization.py      # Visualization tools (supervised)
+│   ├── visualization_unsupervised.py  # Visualization (unsupervised)
 │   ├── features.py           # Feature extraction
 │   ├── data.py               # Data processing
 │   ├── models.py             # Base model classes
 │   └── export.py             # Model export utilities
 ├── scripts/                  # Utility scripts
-│   ├── train.py             # Training pipeline
-│   └── evaluate.py          # Evaluation pipeline
+│   ├── train.py             # Training pipeline (supervised)
+│   ├── train_unsupervised.py  # Training pipeline (unsupervised)
+│   ├── evaluate.py          # Evaluation pipeline (supervised)
+│   ├── evaluate_dc2020.py   # Batch evaluation (unsupervised)
+│   └── deploy_production.py  # Production deployment (unsupervised)
 ├── examples/                 # Usage examples
-│   ├── train_example.py     # Complete training example
+│   ├── train_example.py     # Complete training example (supervised)
+│   ├── unsupervised_example.py  # Complete example (unsupervised)
+│   ├── dc2020_tutorial.ipynb  # Jupyter notebook tutorial
 │   ├── inference.py         # Inference example
 │   └── demo.py              # Demo script
 ├── tests/                    # Test suite
 │   ├── test_preprocessing.py
 │   ├── test_model.py
 │   ├── test_features.py
+│   ├── test_unsupervised_methods.py  # Unsupervised tests
+│   ├── test_dc2020_integration.py  # Integration tests
 │   └── ...
 ├── docs/                     # Documentation
 │   ├── QUICKSTART.md        # Quick start guide
 │   ├── TECHNICAL_WHITEPAPER.md # Technical details
+│   ├── UNSUPERVISED.md      # Unsupervised guide (NEW)
+│   ├── DC2020_RESULTS.md    # Results report (NEW)
+│   ├── PRODUCTION_GUIDE.md  # Deployment guide (NEW)
 │   └── ...
 ├── .github/workflows/        # CI/CD pipelines
 │   ├── tests.yml            # Automated testing
+│   ├── test_unsupervised.yml  # Unsupervised tests (NEW)
 │   └── ci.yml               # Original CI
 ├── requirements.txt          # Python dependencies
 ├── setup.py                 # Package configuration
