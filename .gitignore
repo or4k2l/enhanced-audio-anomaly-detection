@@ -11,3 +11,9 @@ __pycache__/
 .pytest_cache/
 dist/
 build/
+
+# Example outputs (generated during tests)
+example_outputs/
+example_models/
+*.pkl
+*.png
