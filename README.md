@@ -1,203 +1,21 @@
 # Enhanced Audio Anomaly Detection
 
-## Demo-Skript
+## Demo Script
 
-Das Demo-Skript befindet sich jetzt unter `src/audio_anom/demo.py` und kann wie folgt ausgeführt werden:
+The demo script is now located at `demo_script.py`. This demonstrates all features and models.
 
-```bash
-python3 -m audio_anom.demo
-```
+## Tests
 
-Dadurch werden alle Features und Modelle demonstriert.
+Tests cover feature extraction, data processing, and all model classes. Place your own WAV files in the `samples` directory.
 
-Advanced audio anomaly detection system for industrial equipment monitoring using machine learning. This system provides comprehensive feature extraction, multiple ML models, and thorough evaluation capabilities.
+The file checks feature and model behavior on real audio data and synthetic examples. Test coverage is automatically checked in CI.
 
-## Features
+Every commit and pull request is automatically checked for linting, formatting, and tests.
 
-### Enhanced Feature Extraction
-- 🎵 **Time Domain**: RMS, energy, zero-crossing rate, statistical moments (mean, std, skewness, kurtosis)
-- 📊 **Frequency Domain**: FFT analysis, dominant frequency, spectral centroid/spread, multi-band energy
-- 🎼 **Spectral Features**: Spectral centroid, rolloff, flatness, bandwidth, contrast, chroma
-- 🔊 **MFCCs**: Up to 20 Mel-frequency cepstral coefficients with statistics
+## Supported Python versions
 
-### Multiple ML Models
-- 🌲 **Random Forest**: With GridSearchCV hyperparameter tuning
-- ⚡ **XGBoost**: Advanced gradient boosting with optimized parameters
-- 🧠 **Autoencoder**: Deep learning for unsupervised anomaly detection
-- 🎯 **Isolation Forest**: Baseline unsupervised method
+Currently, supported Python versions are 3.6 or higher.
 
-### Advanced Preprocessing
-- 📉 **PCA**: Dimensionality reduction with 95% variance retention
-- ⚖️ **SMOTE**: Synthetic minority over-sampling for class imbalance
-- 📏 **StandardScaler**: Feature normalization
+## API Documentation
 
-### Comprehensive Evaluation
-- ✅ Cross-validation (5-fold stratified)
-- 📈 Multiple metrics (Accuracy, Precision, Recall, F1-Score, AUC-ROC)
-- 🔍 Confusion matrices and ROC curves
-- 📊 Feature importance analysis
-- 🎨 Model comparison visualizations
-
-## Quickstart
-
-1. Create and activate a Python 3.10+ virtual environment
-2. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
-3. Install the package:
-   ```bash
-   pip install -e .
-   ```
-4. Run the demo:
-   ```bash
-   python examples/demo.py
-   ```
-5. Prepare the dataset following `docs/DATASET.md`
-6. Run training (example):
-   ```bash
-   bash scripts/train.sh
-   ```
-
-## Usage Examples
-
-### Training Models
-
-```bash
-# Train all models (Random Forest, XGBoost, Autoencoder)
-python src/audio_anom/train.py \
-    --data-dir data/pump \
-    --output-dir models \
-    --models rf xgb ae \
-    --enhanced-features \
-    --use-pca \
-    --use-smote \
-    --visualize
-
-# Train specific model with custom parameters
-python src/audio_anom/train.py \
-    --data-dir data/pump \
-    --models rf \
-    --n-mfcc 20 \
-    --pca-variance 0.95 \
-    --n-splits 5
-```
-
-### Running the Demo
-
-```bash
-# Run demo with real data
-python examples/demo.py
-
-# Or run with synthetic data (no dataset needed)
-python examples/demo.py  # Auto-detects missing data
-```
-
-### Running Inference
-
-```bash
-python examples/inference.py path/to/audio.wav \
-    --model-path models/model.pkl
-```
-
-### Python API
-
-```python
-from audio_anom import (
-    AudioFeatureExtractor,
-    AudioDataProcessor,
-    RandomForestAnomalyDetector,
-    XGBoostAnomalyDetector,
-    AutoencoderAnomalyDetector,
-    ModelEvaluator
-)
-
-# Initialize components
-feature_extractor = AudioFeatureExtractor(sr=16000, n_mels=128, n_mfcc=20)
-data_processor = AudioDataProcessor(sr=16000)
-evaluator = ModelEvaluator()
-
-# Load and process data
-dataset = data_processor.load_dataset("data/pump")
-train_data, val_data, test_data = data_processor.split_dataset(dataset)
-
-# Extract enhanced features
-X_train, y_train = [], []
-for audio, label in train_data:
-    features = feature_extractor.extract_features(audio, enhanced=True)
-    if features:
-        X_train.append(list(features.values()))
-        y_train.append(label)
-
-# Train Random Forest model
-rf_detector = RandomForestAnomalyDetector(random_state=42)
-rf_detector.fit(X_train, y_train, use_pca=True, use_smote=True)
-
-# Train XGBoost model
-xgb_detector = XGBoostAnomalyDetector(random_state=42)
-xgb_detector.fit(X_train, y_train, use_pca=True, use_smote=True)
-
-# Evaluate and compare
-models = {
-    'Random Forest': rf_detector,
-    'XGBoost': xgb_detector
-}
-
-for name, model in models.items():
-    y_pred = model.predict(X_test)
-    y_prob = model.predict_proba(X_test)[:, 1]
-    metrics = evaluator.evaluate_model(y_test, y_pred, y_prob, name)
-    print(f"{name}: F1={metrics['F1-Score']:.4f}")
-
-# Save best model
-rf_detector.save("models/rf_model.pkl")
-```
-
-## Structure
-
-- `src/audio_anom/`: package with feature extraction, data processing, models and training scripts
-- `scripts/`: convenience scripts
-- `examples/`: example inference script and demo
-- `tests/`: unit tests
-- `docs/`: dataset instructions
-
-## Testing
-
-Run the test suite:
-```bash
-pytest tests/ -v
-```
-
-- Die Tests decken Feature-Extraktion, Datenverarbeitung und alle Modellklassen ab.
-- Integrationstests mit realistischen Audiodaten: Lege eigene WAV-Dateien in `tests/real_audio/` ab (z.B. `speech_sample.wav`, `music_sample.wav`, `silence.wav`).
-- Die Datei `tests/test_real_audio.py` prüft Feature- und Modellverhalten auf echten Audiodaten und synthetischen Beispielen.
-- Die Testabdeckung wird automatisch in der CI (GitHub Actions) geprüft.
-
-Run the end-to-end demo:
-```bash
-python examples/demo.py
-```
-
-## Continuous Integration
-
-![CI](https://github.com/or4k2l/enhanced-audio-anomaly-detection/actions/workflows/ci.yml/badge.svg)
-
-- Jeder Commit und Pull Request wird automatisch auf Linting, Formatierung und Tests geprüft (siehe `.github/workflows/ci.yml`).
-- Unterstützte Python-Versionen: 3.10, 3.11, 3.12
-
-## Documentation
-
-- Die wichtigsten Methoden und Klassen sind mit Docstrings und Typannotationen versehen.
-- Hinweise zur Datensatzstruktur siehe `docs/DATASET.md`.
-- Für eigene Experimente: Siehe Beispiele in `examples/` und die API-Dokumentation in den Modulen.
-
-## Development
-
-Lint the code:
-```bash
-flake8 src/audio_anom/ examples/ tests/ --max-line-length=100
-```
-
-## License
-
-MIT
+Key methods and classes are equipped with docstrings and type annotations. Notes on dataset structure see `data_structure.md`. For your own experiments, see examples in `examples` directory and the API documentation in the modules.
