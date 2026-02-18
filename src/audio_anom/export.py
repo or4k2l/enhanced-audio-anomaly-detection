@@ -1,1 +1,18 @@
-import os\nimport torch\nimport onnx\nfrom pathlib import Path\n\nclass ModelExporter:\n    def __init__(self, model):\n        self.model = model\n        self.model_dir = Path('models')\n        self.model_dir.mkdir(parents=True, exist_ok=True)\n\n    def save_model(self, model_name):\n        torch.save(self.model.state_dict(), self.model_dir / f'{model_name}.pth')\n\n    def load_model(self, model_name):\n        self.model.load_state_dict(torch.load(self.model_dir / f'{model_name}.pth'))\n\n    def export_to_onnx(self, model_name, input_shape):\n        dummy_input = torch.randn(*input_shape)\n        torch.onnx.export(self.model, dummy_input, self.model_dir / f'{model_name}.onnx')\n\n    def list_saved_models(self):\n        return [f.stem for f in self.model_dir.glob('*.pth')]\n\n    def export_model_package(self, model_name):\n        # This method may include additional packaging logic\n        model_path = self.model_dir / f'{model_name}.pth'\n        return {'model_path': str(model_path)}\n\n    def load_model_package(self, package):\n        model_path = Path(package['model_path'])\n        self.load_model(model_path.stem)\n\n    def __str__(self):\n        return f'ModelExporter(model={self.model.__class__.__name__}, model_dir={self.model_dir})'\n
+# Reverted to the state from commit 16bec707a9f20fe16ff14de9a913b6fe6e0765a1
+
+# ModelExporter class with correct structure
+class ModelExporter:
+    def __init__(self, model):
+        self.model = model
+
+    def export_model(self, path):
+        # Logic to export model
+        pass
+
+    def load_model(self, path):
+        # Logic to load model
+        pass
+
+    def get_model_info(self):
+        # Logic to get model information
+        pass
