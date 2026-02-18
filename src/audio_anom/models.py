@@ -1,16 +1,94 @@
-class AnomalyDetector:
-    """Abstract base class for anomaly detectors."""
+class RandomForestAnomalyDetector:
+    """
+    A class for detecting anomalies using Random Forest.
+    """
+    def __init__(self):
+        pass
 
-    def train(self):
-        """Trains the detector.""" 
-        # training logic here
+    def fit(self, X):
+        """
+        Fit the Random Forest model.
 
-    def predict(self):
-        """Makes predictions.""" 
-        # prediction logic here
+        Parameters:
+        X : array-like, shape (n_samples, n_features)
+            The input data.
+        """
+        pass
 
-    def is_fitted(self):
-        """Returns whether the model is fitted.""" 
-        # logic to check if model is fitted
+    def predict(self, X):
+        """
+        Predict anomalies in the dataset.
 
-# additional code here
+        Parameters:
+        X : array-like, shape (n_samples, n_features)
+            The input data for prediction.
+
+        Returns:
+        array : shape (n_samples,)
+            An array of predictions.
+        """
+        pass
+
+
+class XGBoostAnomalyDetector:
+    """
+    A class for detecting anomalies using XGBoost.
+    """
+    def __init__(self):
+        pass
+
+    def fit(self, X):
+        """
+        Fit the XGBoost model.
+
+        Parameters:
+        X : array-like, shape (n_samples, n_features)
+            The input data.
+        """
+        pass
+
+    def predict(self, X):
+        """
+        Predict anomalies in the dataset.
+
+        Parameters:
+        X : array-like, shape (n_samples, n_features)
+            The input data for prediction.
+
+        Returns:
+        array : shape (n_samples,)
+            An array of predictions.
+        """
+        pass
+
+
+class AutoencoderAnomalyDetector:
+    """
+    A class for detecting anomalies using Autoencoders.
+    """
+    def __init__(self):
+        pass
+
+    def fit(self, X):
+        """
+        Fit the Autoencoder model.
+
+        Parameters:
+        X : array-like, shape (n_samples, n_features)
+            The input data.
+        """
+        pass
+
+    def predict(self, X):
+        """
+        Predict anomalies in the dataset.
+
+        Parameters:
+        X : array-like, shape (n_samples, n_features)
+            The input data for prediction.
+
+        Returns:
+        array : shape (n_samples,)
+            An array of predictions.
+        """
+        pass
