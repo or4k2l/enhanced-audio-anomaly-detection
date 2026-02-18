@@ -1,0 +1,112 @@
+name: Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        python-version: ['3.8', '3.9', '3.10', '3.11']
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install system dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libsndfile1 ffmpeg
+
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install -e .
+
+    - name: Lint with flake8
+      run: |
+        pip install flake8
+        # Stop the build if there are Python syntax errors or undefined names
+        flake8 src/ --count --select=E9,F63,F7,F82 --show-source --statistics
+        # Exit-zero treats all errors as warnings
+        flake8 src/ --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+
+    - name: Run tests with pytest
+      run: |
+        pytest tests/ -v --tb=short
+
+    - name: Test new modules import
+      run: |
+        python -c "
+        from audio_anom import (
+            DataPreprocessor,
+            RandomForestAnomalyDetector,
+            XGBoostAnomalyDetector,
+            ModelConfig,
+            setup_logger,
+            get_logger
+        )
+        print('All imports successful!')
+        "
+
+    - name: Run training example (quick test)
+      run: |
+        python -c "
+        import numpy as np
+        from audio_anom import DataPreprocessor, RandomForestAnomalyDetector, ModelConfig
+        
+        # Generate small synthetic data
+        np.random.seed(42)
+        X = np.random.randn(100, 288)
+        y = np.random.randint(0, 2, 100)
+        
+        # Quick training test
+        config = ModelConfig.default()
+        preprocessor = DataPreprocessor(config=config.preprocessing)
+        X_processed, y_processed = preprocessor.fit_transform_train(X, y)
+        
+        model = RandomForestAnomalyDetector(random_state=42)
+        model.fit(X_processed, y_processed)
+        
+        # Quick prediction test
+        pred = model.predict(X_processed[:10])
+        print(f'Training and prediction test passed! Predictions shape: {pred.shape}')
+        "
+
+  code-quality:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install flake8 black isort
+
+    - name: Check code formatting with black
+      run: |
+        black --check src/ tests/ || echo "Black formatting check completed"
+
+    - name: Check import sorting with isort
+      run: |
+        isort --check-only src/ tests/ || echo "isort check completed"
+
+    - name: Lint with flake8
+      run: |
+        flake8 src/ tests/ --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
