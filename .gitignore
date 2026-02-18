@@ -1,3 +1,11 @@
 # Ignored files
 
 test_load_wav.py
+
+# Python build artifacts
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+*.egg
