@@ -1,3 +1,19 @@
 # Ignored files
 
 test_load_wav.py
+
+# Python artifacts
+__pycache__/
+*.py[cod]
+*.so
+*.egg
+*.egg-info/
+.pytest_cache/
+dist/
+build/
+
+# Example outputs (generated during tests)
+example_outputs/
+example_models/
+*.pkl
+*.png
