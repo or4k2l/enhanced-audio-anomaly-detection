@@ -25,17 +25,37 @@ from .config import (
 )
 from .logger import setup_logger, get_logger
 
+# Unsupervised Anomaly Detection
+from .unsupervised_anomaly import (
+    LocalOutlierFactorAnomalyDetector,
+    IsolationForestAnomalyDetector,
+    EllipticEnvelopeAnomalyDetector,
+    create_detector,
+)
+from .preprocessing_unsupervised import UnsupervisedPreprocessor
+
 __all__ = [
+    # Core
     "AudioFeatureExtractor",
     "AudioDataProcessor",
+    "build_feature_vector",
+    # Supervised Models
     "AnomalyDetector",
     "RandomForestAnomalyDetector",
     "XGBoostAnomalyDetector",
     "AutoencoderAnomalyDetector",
+    # Unsupervised Models
+    "LocalOutlierFactorAnomalyDetector",
+    "IsolationForestAnomalyDetector",
+    "EllipticEnvelopeAnomalyDetector",
+    "create_detector",
+    # Preprocessing
     "DataPreprocessor",
+    "UnsupervisedPreprocessor",
+    # Evaluation & Export
     "ModelEvaluator",
     "ModelExporter",
-    "build_feature_vector",
+    # Configuration
     "ModelConfig",
     "FeatureConfig",
     "PreprocessingConfig",
@@ -44,6 +64,7 @@ __all__ = [
     "TrainingConfig",
     "EvaluationConfig",
     "DEFAULT_CONFIG",
+    # Utilities
     "setup_logger",
     "get_logger",
 ]

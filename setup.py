@@ -44,6 +44,9 @@ setup(
     entry_points={
         "console_scripts": [
             "audio-anom-train=audio_anom.train:main",
+            "train-unsupervised=scripts.train_unsupervised:main",
+            "evaluate-dc2020=scripts.evaluate_dc2020:main",
+            "deploy-anomaly=scripts.deploy_production:main",
         ],
     },
 )
