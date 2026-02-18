@@ -165,7 +165,7 @@ class RandomForestAnomalyDetector:
             ValueError: If model is not fitted
         """
         if not self.is_fitted:
-            raise Exception("Model is not fitted yet. Call fit() before predicting.")
+            raise ValueError("Model is not fitted yet. Call fit() before predicting.")
 
         logger.debug(f"Predicting on data with shape {X.shape}")
         predictions = self.best_estimator_.predict(X)
@@ -186,7 +186,7 @@ class RandomForestAnomalyDetector:
             ValueError: If model is not fitted
         """
         if not self.is_fitted:
-            raise Exception("Model is not fitted yet. Call fit() before predicting.")
+            raise ValueError("Model is not fitted yet. Call fit() before predicting.")
 
         logger.debug(f"Predicting probabilities on data with shape {X.shape}")
         probabilities = self.best_estimator_.predict_proba(X)

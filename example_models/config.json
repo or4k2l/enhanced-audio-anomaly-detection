@@ -1,0 +1,78 @@
+{
+  "feature": {
+    "sr": 16000,
+    "n_mels": 128,
+    "n_fft": 1024,
+    "hop_length": 512,
+    "n_mfcc": 20
+  },
+  "preprocessing": {
+    "n_components": 10,
+    "apply_pca": true,
+    "apply_smote": true,
+    "apply_scaling": true,
+    "smote_random_state": 42,
+    "smote_k_neighbors": 5
+  },
+  "random_forest": {
+    "param_grid": {
+      "n_estimators": [
+        100,
+        200
+      ],
+      "max_depth": [
+        10,
+        20,
+        null
+      ],
+      "min_samples_split": [
+        2,
+        5
+      ],
+      "min_samples_leaf": [
+        1,
+        2
+      ],
+      "class_weight": [
+        "balanced",
+        null
+      ]
+    },
+    "cv_folds": 3,
+    "cv_random_state": 42,
+    "random_state": 42,
+    "n_jobs": -1,
+    "verbose": 1
+  },
+  "xgboost": {
+    "learning_rate": 0.1,
+    "max_depth": 6,
+    "n_estimators": 100,
+    "subsample": 0.8,
+    "colsample_bytree": 0.8,
+    "random_state": 42,
+    "n_jobs": -1,
+    "use_label_encoder": false,
+    "eval_metric": "logloss",
+    "auto_scale_pos_weight": true
+  },
+  "training": {
+    "test_size": 0.2,
+    "val_size": 0.1,
+    "random_state": 42,
+    "batch_size": 32,
+    "shuffle": true
+  },
+  "evaluation": {
+    "metrics": [
+      "accuracy",
+      "precision",
+      "recall",
+      "f1",
+      "roc_auc"
+    ],
+    "save_plots": true,
+    "plot_format": "png",
+    "plot_dpi": 300
+  }
+}
