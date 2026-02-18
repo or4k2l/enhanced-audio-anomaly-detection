@@ -1,1 +1,99 @@
-import numpy as np\nimport pandas as pd\nfrom sklearn.ensemble import RandomForestClassifier\nfrom sklearn.model_selection import GridSearchCV\nfrom sklearn.decomposition import PCA\nfrom imblearn.over_sampling import SMOTE\nimport joblib\n\nclass RandomForestAnomalyDetector:\n    def __init__(self, param_grid=None):\n        self.model = RandomForestClassifier()\n        self.param_grid = param_grid or {\n            'n_estimators': [100, 200],\n            'max_depth': [None, 10, 20],\n            'min_samples_split': [2, 5],\n        }\n        self.grid_search = GridSearchCV(self.model, self.param_grid)\n\n    def fit(self, X, y):\n        smote = SMOTE()\n        X_resampled, y_resampled = smote.fit_resample(X, y)\n        self.grid_search.fit(X_resampled, y_resampled)\n\n    def predict(self, X):\n        return self.grid_search.predict(X)\n\n    def predict_proba(self, X):\n        return self.grid_search.predict_proba(X)\n\n    def save(self, filepath):\n        joblib.dump(self.grid_search.best_estimator_, filepath)\n\n    def load(self, filepath):\n        self.grid_search.best_estimator_ = joblib.load(filepath)\n\nclass XGBoostAnomalyDetector:\n    def __init__(self, param_grid=None):\n        import xgboost as xgb\n        self.model = xgb.XGBClassifier(use_label_encoder=False, eval_metric='logloss')\n        self.param_grid = param_grid or {\n            'n_estimators': [100, 200],\n            'max_depth': [3, 5, 7],\n            'learning_rate': [0.01, 0.1],\n        }\n        self.grid_search = GridSearchCV(self.model, self.param_grid)\n\n    def fit(self, X, y):\n        smote = SMOTE()\n        X_resampled, y_resampled = smote.fit_resample(X, y)\n        self.grid_search.fit(X_resampled, y_resampled)\n\n    def predict(self, X):\n        return self.grid_search.predict(X)\n\n    def predict_proba(self, X):\n        return self.grid_search.predict_proba(X)\n\n    def save(self, filepath):\n        joblib.dump(self.grid_search.best_estimator_, filepath)\n\n    def load(self, filepath):\n        self.grid_search.best_estimator_ = joblib.load(filepath)\n\nclass AutoencoderAnomalyDetector:\n    def __init__(self, input_dim):\n        from keras.models import Sequential\n        from keras.layers import Dense\n        self.model = self.build_model(input_dim)\n\n    def build_model(self, input_dim):\n        model = Sequential()\n        model.add(Dense(128, activation='relu', input_shape=(input_dim,)))\n        model.add(Dense(64, activation='relu'))\n        model.add(Dense(32, activation='relu'))\n        model.add(Dense(64, activation='relu'))\n        model.add(Dense(128, activation='relu'))\n        model.add(Dense(input_dim, activation='sigmoid'))\n        model.compile(optimizer='adam', loss='mean_squared_error')\n        return model\n\n    def fit(self, X, epochs=50, batch_size=32):\n        self.model.fit(X, X, epochs=epochs, batch_size=batch_size, validation_split=0.2)\n\n    def predict(self, X):\n        reconstructed = self.model.predict(X)\n        return np.where(np.abs(X - reconstructed) > 0.1, 1, 0)\n\n    def save(self, filepath):\n        self.model.save(filepath)\n\n    def load(self, filepath):\n        from keras.models import load_model\n        self.model = load_model(filepath)
+import joblib
+import numpy as np
+
+class RandomForestAnomalyDetector:
+    def __init__(self, random_state=None):
+        self.random_state = random_state
+        self.model = None
+        self.is_fitted = False
+
+    def fit(self, X, y):
+        from sklearn.ensemble import RandomForestClassifier
+        self.model = RandomForestClassifier(random_state=self.random_state)
+        self.model.fit(X, y)
+        self.is_fitted = True
+        self.best_estimator_ = self.model
+
+    def save(self, file_path):
+        joblib.dump({
+            'best_estimator_': self.best_estimator_,
+            'random_state': self.random_state,
+            'is_fitted': self.is_fitted,
+        }, file_path)
+
+    def load(self, file_path):
+        data = joblib.load(file_path)
+        self.best_estimator_ = data['best_estimator_']
+        self.random_state = data['random_state']
+        self.is_fitted = data['is_fitted']
+
+    def predict(self, X):
+        if not self.is_fitted:
+            raise Exception('Model is not fitted yet. Call fit() before predicting.')
+        return self.best_estimator_.predict(X)
+
+class XGBoostAnomalyDetector:
+    def __init__(self, random_state=None):
+        self.random_state = random_state
+        self.model = None
+        self.is_fitted = False
+
+    def fit(self, X, y):
+        import xgboost as xgb
+        self.model = xgb.XGBClassifier(random_state=self.random_state)
+        self.model.fit(X, y)
+        self.is_fitted = True
+        self.best_estimator_ = self.model
+
+    def save(self, file_path):
+        joblib.dump({
+            'best_estimator_': self.best_estimator_,
+            'random_state': self.random_state,
+            'is_fitted': self.is_fitted,
+        }, file_path)
+
+    def load(self, file_path):
+        data = joblib.load(file_path)
+        self.best_estimator_ = data['best_estimator_']
+        self.random_state = data['random_state']
+        self.is_fitted = data['is_fitted']
+
+    def predict(self, X):
+        if not self.is_fitted:
+            raise Exception('Model is not fitted yet. Call fit() before predicting.')
+        return self.best_estimator_.predict(X)
+
+class AutoencoderAnomalyDetector:
+    def __init__(self, random_state=None):
+        self.random_state = random_state
+        self.model = None
+        self.is_fitted = False
+
+    def fit(self, X):
+        from keras.models import Sequential
+        from keras.layers import Dense
+        self.model = Sequential()
+        self.model.add(Dense(32, activation='relu', input_shape=(X.shape[1],)))
+        self.model.add(Dense(X.shape[1], activation='sigmoid'))
+        self.model.compile(optimizer='adam', loss='mean_squared_error')
+        self.model.fit(X, X, epochs=50, batch_size=32, verbose=0)
+        self.is_fitted = True
+
+    def save(self, file_path):
+        joblib.dump({
+            'best_estimator_': self.model,
+            'random_state': self.random_state,
+            'is_fitted': self.is_fitted,
+        }, file_path)
+
+    def load(self, file_path):
+        data = joblib.load(file_path)
+        self.model = data['best_estimator_']
+        self.random_state = data['random_state']
+        self.is_fitted = data['is_fitted']
+
+    def predict(self, X):
+        if not self.is_fitted:
+            raise Exception('Model is not fitted yet. Call fit() before predicting.')
+        reconstructed = self.model.predict(X)
+        return np.mean(np.power(X - reconstructed, 2), axis=1)
