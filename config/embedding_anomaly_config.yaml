@@ -1,0 +1,62 @@
+# Embedding-Based Anomaly Detection Configuration
+
+# Detector method selection
+# Options: 'mahalanobis', 'knn', 'isolation_forest', 'ensemble'
+detector_method: ensemble
+
+# Feature extraction parameters
+feature_extraction:
+  sr: 22050
+  n_mels: 128
+  n_mfcc: 13
+  n_fft: 2048
+  hop_length: 512
+  normalize: true
+
+# Mahalanobis detector configuration
+mahalanobis:
+  use_ledoit_wolf: true
+  regularization: 1.0e-06
+  threshold_percentile: 95.0
+
+# k-NN detector configuration
+knn:
+  n_neighbors: 5
+  threshold_percentile: 95.0
+  metric: euclidean
+
+# Isolation Forest detector configuration
+isolation_forest:
+  contamination: 0.1
+  n_estimators: 100
+  max_samples: auto
+  random_state: 42
+
+# Ensemble detector configuration
+ensemble:
+  methods:
+  - mahalanobis
+  - knn
+  - isolation_forest
+  weights:
+  - 0.4
+  - 0.35
+  - 0.25
+  threshold_percentile: 95.0
+
+# Data augmentation configuration
+augmentation:
+  use_mixup: true
+  mixup_alpha: 0.2
+  use_specaug: true
+  use_timestretch: true
+  use_pitchshift: true
+  use_noise: true
+  random_state: null
+
+# Training configuration
+training:
+  batch_size: 32
+  validation_split: 0.2
+  random_state: 42
+  save_best_model: true

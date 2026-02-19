@@ -1,6 +1,6 @@
 """Enhanced Audio Anomaly Detection Package."""
 
-__version__ = "0.1.0"
+__version__ = "3.0.0"
 
 from .features import AudioFeatureExtractor
 from .data import AudioDataProcessor, build_feature_vector
@@ -34,6 +34,27 @@ from .unsupervised_anomaly import (
 )
 from .preprocessing_unsupervised import UnsupervisedPreprocessor
 
+# Embedding-Based Anomaly Detection
+from .feature_extractor import RobustFeatureExtractor
+from .embedding_anomaly import (
+    MahalanobisDetector,
+    KNNDetector,
+    IsolationForestDetector as EmbeddingIsolationForestDetector,
+    EnsembleDetector,
+    create_detector as create_embedding_detector,
+)
+from .augmentation import AudioAugmenter, create_augmenter
+from .embedding_config import (
+    EmbeddingAnomalyConfig,
+    FeatureExtractionConfig,
+    MahalanobisConfig,
+    KNNConfig,
+    IsolationForestConfig as EmbeddingIsolationForestConfig,
+    EnsembleConfig,
+    AugmentationConfig,
+    create_default_config_file,
+)
+
 __all__ = [
     # Core
     "AudioFeatureExtractor",
@@ -49,6 +70,23 @@ __all__ = [
     "IsolationForestAnomalyDetector",
     "EllipticEnvelopeAnomalyDetector",
     "create_detector",
+    # Embedding-Based Anomaly Detection
+    "RobustFeatureExtractor",
+    "MahalanobisDetector",
+    "KNNDetector",
+    "EmbeddingIsolationForestDetector",
+    "EnsembleDetector",
+    "create_embedding_detector",
+    "AudioAugmenter",
+    "create_augmenter",
+    "EmbeddingAnomalyConfig",
+    "FeatureExtractionConfig",
+    "MahalanobisConfig",
+    "KNNConfig",
+    "EmbeddingIsolationForestConfig",
+    "EnsembleConfig",
+    "AugmentationConfig",
+    "create_default_config_file",
     # Preprocessing
     "DataPreprocessor",
     "UnsupervisedPreprocessor",

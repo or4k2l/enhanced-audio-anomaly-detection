@@ -1,0 +1,260 @@
+name: Embedding Anomaly Detection Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'src/audio_anom/feature_extractor.py'
+      - 'src/audio_anom/embedding_anomaly.py'
+      - 'src/audio_anom/augmentation.py'
+      - 'src/audio_anom/embedding_config.py'
+      - 'tests/test_feature_extractor.py'
+      - 'tests/test_embedding_anomaly.py'
+      - 'tests/test_augmentation.py'
+      - 'config/embedding_anomaly_config.yaml'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'src/audio_anom/feature_extractor.py'
+      - 'src/audio_anom/embedding_anomaly.py'
+      - 'src/audio_anom/augmentation.py'
+      - 'src/audio_anom/embedding_config.py'
+      - 'tests/test_feature_extractor.py'
+      - 'tests/test_embedding_anomaly.py'
+      - 'tests/test_augmentation.py'
+      - 'config/embedding_anomaly_config.yaml'
+
+permissions:
+  contents: read
+
+jobs:
+  test-embedding:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        python-version: ['3.8', '3.9', '3.10', '3.11']
+
+    permissions:
+      contents: read
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install system dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libsndfile1 ffmpeg
+
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install -e .
+
+    - name: Test embedding feature extractor
+      run: |
+        pytest tests/test_feature_extractor.py -v --tb=short
+
+    - name: Test embedding anomaly detectors
+      run: |
+        pytest tests/test_embedding_anomaly.py -v --tb=short
+
+    - name: Test audio augmentation
+      run: |
+        pytest tests/test_augmentation.py -v --tb=short
+
+    - name: Test embedding imports
+      run: |
+        python -c "
+        from audio_anom import (
+            RobustFeatureExtractor,
+            MahalanobisDetector,
+            KNNDetector,
+            EmbeddingIsolationForestDetector,
+            EnsembleDetector,
+            AudioAugmenter,
+            EmbeddingAnomalyConfig,
+            create_embedding_detector,
+            create_augmenter
+        )
+        print('✓ All embedding modules imported successfully!')
+        "
+
+    - name: Test embedding configuration
+      run: |
+        python -c "
+        from audio_anom import EmbeddingAnomalyConfig
+        
+        # Load config
+        config = EmbeddingAnomalyConfig.from_yaml('config/embedding_anomaly_config.yaml')
+        print(f'✓ Configuration loaded: method={config.detector_method}')
+        
+        # Test config components
+        assert config.detector_method == 'ensemble'
+        assert config.feature_extraction.sr == 22050
+        assert config.feature_extraction.n_mels == 128
+        assert len(config.ensemble.methods) == 3
+        print('✓ Configuration validation passed!')
+        "
+
+    - name: Run embedding example (quick test)
+      run: |
+        python -c "
+        import numpy as np
+        from audio_anom import RobustFeatureExtractor, EnsembleDetector
+        
+        # Generate synthetic data
+        np.random.seed(42)
+        audio_list = [np.random.randn(22050) for _ in range(50)]
+        
+        # Extract features
+        extractor = RobustFeatureExtractor(sr=22050)
+        features = extractor.extract_features_batch(audio_list)
+        print(f'✓ Extracted features: {features.shape}')
+        
+        # Train ensemble detector
+        detector = EnsembleDetector()
+        detector.fit(features[:40])
+        
+        # Predict
+        scores = detector.score(features[40:])
+        predictions = detector.predict(features[40:])
+        
+        print(f'✓ Predictions: {predictions.shape}, anomalies detected: {predictions.sum()}')
+        print('✓ Embedding pipeline test passed!')
+        "
+
+  backward-compatibility:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: Install system dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libsndfile1 ffmpeg
+
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install -e .
+
+    - name: Run all tests (verify backward compatibility)
+      run: |
+        pytest tests/ -v --tb=short
+
+    - name: Verify old API still works
+      run: |
+        python -c "
+        from audio_anom import (
+            DataPreprocessor,
+            RandomForestAnomalyDetector,
+            XGBoostAnomalyDetector,
+            LocalOutlierFactorAnomalyDetector,
+            IsolationForestAnomalyDetector,
+            EllipticEnvelopeAnomalyDetector,
+            ModelConfig
+        )
+        print('✓ All legacy imports successful!')
+        print('✓ Backward compatibility verified!')
+        "
+
+  performance-benchmark:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: Install system dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libsndfile1 ffmpeg
+
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install -e .
+
+    - name: Run performance benchmark
+      run: |
+        python -c "
+        import numpy as np
+        import time
+        from audio_anom import (
+            RobustFeatureExtractor,
+            MahalanobisDetector,
+            KNNDetector,
+            EmbeddingIsolationForestDetector,
+            EnsembleDetector
+        )
+        
+        print('=' * 70)
+        print('Performance Benchmark')
+        print('=' * 70)
+        
+        # Generate test data
+        np.random.seed(42)
+        n_train = 500
+        n_test = 100
+        
+        audio_list = [np.random.randn(22050) for _ in range(n_train + n_test)]
+        
+        # Feature extraction benchmark
+        extractor = RobustFeatureExtractor(sr=22050)
+        start = time.time()
+        features = extractor.extract_features_batch(audio_list)
+        extract_time = time.time() - start
+        print(f'Feature extraction: {extract_time:.2f}s ({len(audio_list)/extract_time:.1f} samples/sec)')
+        
+        train_features = features[:n_train]
+        test_features = features[n_train:]
+        
+        # Benchmark each detector
+        detectors = {
+            'Mahalanobis': MahalanobisDetector(),
+            'k-NN': KNNDetector(),
+            'Isolation Forest': EmbeddingIsolationForestDetector(),
+            'Ensemble': EnsembleDetector()
+        }
+        
+        for name, detector in detectors.items():
+            # Training time
+            start = time.time()
+            detector.fit(train_features)
+            train_time = time.time() - start
+            
+            # Inference time
+            start = time.time()
+            scores = detector.score(test_features)
+            inference_time = time.time() - start
+            
+            print(f'{name:20} | Train: {train_time:.3f}s | Inference: {inference_time*1000:.1f}ms')
+        
+        print('=' * 70)
+        print('✓ Benchmark completed!')
+        "
