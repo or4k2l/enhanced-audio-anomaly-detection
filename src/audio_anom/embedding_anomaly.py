@@ -159,11 +159,13 @@ class MahalanobisDetector(BaseEmbeddingDetector):
             logger.warning("Singular covariance matrix, using pseudo-inverse")
             self.inv_cov_ = np.linalg.pinv(self.cov_)
         
+        # Mark as fitted before computing threshold
+        self.is_fitted = True
+        
         # Compute threshold based on training scores
         train_scores = self.score(X)
         self.threshold = np.percentile(train_scores, self.threshold_percentile)
         
-        self.is_fitted = True
         logger.info(f"MahalanobisDetector fitted, threshold: {self.threshold:.4f}")
         
         return self
@@ -233,11 +235,13 @@ class KNNDetector(BaseEmbeddingDetector):
         self.nn_ = NearestNeighbors(n_neighbors=self.n_neighbors, metric=self.metric)
         self.nn_.fit(X)
         
+        # Mark as fitted before computing threshold
+        self.is_fitted = True
+        
         # Compute threshold based on training scores
         train_scores = self.score(X)
         self.threshold = np.percentile(train_scores, self.threshold_percentile)
         
-        self.is_fitted = True
         logger.info(f"KNNDetector fitted, threshold: {self.threshold:.4f}")
         
         return self
@@ -312,11 +316,13 @@ class IsolationForestDetector(BaseEmbeddingDetector):
         )
         self.model_.fit(X)
         
+        # Mark as fitted before computing threshold
+        self.is_fitted = True
+        
         # Compute threshold (Isolation Forest decision function is negative for outliers)
         train_scores = self.score(X)
         self.threshold = np.percentile(train_scores, 100 - self.contamination * 100)
         
-        self.is_fitted = True
         logger.info(f"IsolationForestDetector fitted, threshold: {self.threshold:.4f}")
         
         return self
@@ -421,11 +427,13 @@ class EnsembleDetector(BaseEmbeddingDetector):
             
             logger.info(f"  {method}: threshold={detector.threshold:.4f}")
         
+        # Mark as fitted before computing threshold
+        self.is_fitted = True
+        
         # Compute ensemble threshold
         train_scores = self.score(X)
         self.threshold = np.percentile(train_scores, self.threshold_percentile)
         
-        self.is_fitted = True
         logger.info(f"EnsembleDetector fitted, ensemble threshold: {self.threshold:.4f}")
         
         return self
