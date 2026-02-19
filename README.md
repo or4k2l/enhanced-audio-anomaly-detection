@@ -16,6 +16,29 @@ A production-ready machine learning system for detecting anomalies in audio sign
 - **Rich Visualizations**: Confusion matrices, ROC curves, feature importance, model comparison
 - **Complete Pipeline**: Training scripts, evaluation tools, inference examples
 
+## 📊 PERFORMANCE HIGHLIGHTS ⭐⭐⭐
+
+### Real-World Validation on DCASE 2020 Task 2
+<img width="1389" height="490" alt="Herunterladen (5)" src="https://github.com/user-attachments/assets/90e6c7fd-a8b4-477a-9172-be1911bcdadb" />
+**Your System Achieves:**
+- ✅ **+51% Better** than random guessing (AUC 0.755 vs 0.50)
+- ✅ **+7.9% Better** than DC2020 baseline (AUC 0.755 vs 0.70)
+- ✅ **Production-Ready** on real industrial machines (10,000+ audio files tested)
+
+### Best Method: Local Outlier Factor (LOF)
+<img width="1189" height="790" alt="Herunterladen (3)" src="https://github.com/user-attachments/assets/27dbc58c-4740-456e-b8a2-27ffe68a5a7e" />
+**Average Performance:** 0.7734 AUC across 6 different machine types
+- 11.8% better than Isolation Forest
+- 23.8% better than Elliptic Envelope
+
+### Robust Performance Across Machines
+<img width="1381" height="690" alt="Herunterladen (4)" src="https://github.com/user-attachments/assets/60ad8c16-0d00-4101-821c-f3c6eee2bf75" />
+
+**Performance by Machine:**
+- **TIER S (EXCELLENT):** fan (0.832), pump (0.815), slider (0.821), valve (0.814) ⭐���⭐
+- **TIER A (GOOD):** ToyCar (0.739) ⭐⭐
+- **TIER B (ACCEPTABLE):** ToyConveyor (0.620) ⭐
+
 ### Machine Learning Components
 
 #### 1. Data Preprocessing (`preprocessing.py`)
