@@ -35,7 +35,7 @@ A production-ready machine learning system for detecting anomalies in audio sign
 <img width="1381" height="690" alt="Herunterladen (4)" src="https://github.com/user-attachments/assets/60ad8c16-0d00-4101-821c-f3c6eee2bf75" />
 
 **Performance by Machine:**
-- **TIER S (EXCELLENT):** fan (0.832), pump (0.815), slider (0.821), valve (0.814) ⭐���⭐
+- **TIER S (EXCELLENT):** fan (0.832), pump (0.815), slider (0.821), valve (0.814) ⭐⭐⭐⭐⭐
 - **TIER A (GOOD):** ToyCar (0.739) ⭐⭐
 - **TIER B (ACCEPTABLE):** ToyConveyor (0.620) ⭐
 
