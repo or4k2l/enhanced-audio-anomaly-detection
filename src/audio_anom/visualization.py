@@ -230,7 +230,7 @@ def plot_label_distribution(
     fig, ax = plt.subplots(figsize=figsize)
 
     colors = ["green", "red"]
-    ax.bar(range(len(unique)), counts, color=colors[:len(unique)], edgecolor="black")
+    ax.bar(range(len(unique)), counts, color=colors[: len(unique)], edgecolor="black")
 
     ax.set_xticks(range(len(unique)))
     ax.set_xticklabels([labels[i] for i in unique])
@@ -492,7 +492,9 @@ def create_evaluation_dashboard(
 
     # 4. Label distribution
     unique, counts = np.unique(y_true, return_counts=True)
-    axes[1, 0].bar(range(len(unique)), counts, color=["green", "red"], edgecolor="black")
+    axes[1, 0].bar(
+        range(len(unique)), counts, color=["green", "red"], edgecolor="black"
+    )
     axes[1, 0].set_xticks(range(len(unique)))
     axes[1, 0].set_xticklabels(["Normal", "Anomaly"])
     axes[1, 0].set_ylabel("Count")

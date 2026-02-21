@@ -1,0 +1,14 @@
+{
+  "method": "Convolutional Autoencoder (Regularized)",
+  "architecture": "4-layer encoder/decoder, dropout 0.3",
+  "results": {
+    "fan": 0.549,
+    "pump": 0.568,
+    "slider": 0.713,
+    "valve": 0.526,
+    "ToyCar": 0.765,
+    "ToyConveyor": 0.598,
+    "average": 0.620
+  },
+  "lessons": "CAE reconstructs anomalies too well. Overfitting on normal data."
+}

@@ -5,7 +5,7 @@ import joblib
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import GridSearchCV, StratifiedKFold
 from pathlib import Path
-from typing import Optional, Dict, Any, Tuple
+from typing import Optional, Dict, Any
 
 from .logger import get_logger
 from .config import RandomForestConfig
@@ -217,7 +217,9 @@ class RandomForestAnomalyDetector:
 
         # Create feature names if not provided
         if feature_names is None:
-            feature_names = [f"Feature_{i}" for i in range(len(self.feature_importances_))]
+            feature_names = [
+                f"Feature_{i}" for i in range(len(self.feature_importances_))
+            ]
 
         # Create importance dictionary
         importance_dict = dict(zip(feature_names, self.feature_importances_))

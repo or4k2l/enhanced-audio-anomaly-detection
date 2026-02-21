@@ -4,7 +4,6 @@ import logging
 import sys
 from pathlib import Path
 from typing import Optional
-from datetime import datetime
 
 
 def setup_logger(
@@ -34,9 +33,7 @@ def setup_logger(
 
     # Default format string
     if format_string is None:
-        format_string = (
-            "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-        )
+        format_string = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 
     formatter = logging.Formatter(format_string)
 

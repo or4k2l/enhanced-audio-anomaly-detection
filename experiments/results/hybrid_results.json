@@ -1,0 +1,19 @@
+{
+  "method": "Hybrid Ensemble (AST + Classical)",
+  "features": "1723-dim (768 AST + 955 classical)",
+  "results": {
+    "fan": {"auc": 0.651, "best_method": "OCSVM"},
+    "pump": {"auc": 0.874, "best_method": "GMM-16"},
+    "slider": {"auc": 0.870, "best_method": "GMM-8"},
+    "valve": {"auc": 0.779, "best_method": "GMM-8"},
+    "ToyCar": {"auc": 0.751, "best_method": "GMM-8"},
+    "ToyConveyor": {"auc": 0.594, "best_method": "GMM-8"},
+    "average": 0.753
+  },
+  "best_single_result": {
+    "machine": "pump",
+    "auc": 0.874,
+    "improvement_vs_sklearn": 0.059
+  },
+  "lessons": "Hybrid beats sklearn on 3/6 machines. Best for Pump & Slider."
+}
