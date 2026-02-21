@@ -129,6 +129,24 @@ This document chronicles the full experimental journey from initial attempts to 
 
 ---
 
+### Synergy Analysis
+
+Hybrid (0.874) outperforms both single-modality approaches for Pump:
+- vs Classical-only (0.815): +0.059 (+5.9%)
+- vs AST-only (0.799): +0.075 (+7.5%)
+
+This suggests **complementary information content**: AST captures high-level
+acoustic patterns (cavitation modulation, rhythm) that classical features miss,
+while classical features capture low-level spectral details (bearing defects,
+frequency peaks) that AST misses. The GMM can leverage both signals to learn
+richer decision boundaries.
+
+**Key insight**: The improvement over both single approaches indicates that
+neither feature set alone is sufficient—pump anomalies genuinely require both
+semantic and spectral information for optimal detection.
+
+---
+
 ## Summary: What Works vs. What Doesn't
 
 | Approach | Average AUC | Status |
