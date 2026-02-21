@@ -1,0 +1,14 @@
+{
+  "method": "Audio Spectrogram Transformer (Pretrained)",
+  "model": "MIT/ast-finetuned-audioset-10-10-0.4593",
+  "results": {
+    "fan": 0.616,
+    "pump": 0.799,
+    "slider": 0.904,
+    "valve": 0.756,
+    "ToyCar": 0.661,
+    "ToyConveyor": 0.601,
+    "average": 0.723
+  },
+  "lessons": "Domain mismatch: AudioSet != industrial machines. Misses low-level details."
+}

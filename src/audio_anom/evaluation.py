@@ -82,8 +82,8 @@ class ModelEvaluator:
         # Confusion matrix
         cm = confusion_matrix(y_true, y_pred)
         print("\nConfusion Matrix:")
-        print(f"  TN: {cm[0,0]:4d}  |  FP: {cm[0,1]:4d}")
-        print(f"  FN: {cm[1,0]:4d}  |  TP: {cm[1,1]:4d}")
+        print(f"  TN: {cm[0, 0]:4d}  |  FP: {cm[0, 1]:4d}")
+        print(f"  FN: {cm[1, 0]:4d}  |  TP: {cm[1, 1]:4d}")
 
     def compare_models(self, results_list):
         """

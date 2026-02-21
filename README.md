@@ -1,10 +1,128 @@
 # Enhanced Audio Anomaly Detection
 
-A production-ready machine learning system for detecting anomalies in audio signals using Random Forest and XGBoost models with comprehensive preprocessing and evaluation pipelines.
+A production-ready machine learning system for detecting anomalies in industrial machine audio using a hybrid ensemble of pretrained transformer embeddings and classical signal processing features.
 
-![CI Tests](https://github.com/or4k2l/enhanced-audio-anomaly-detection/workflows/Tests/badge.svg)
+![CI](https://github.com/or4k2l/enhanced-audio-anomaly-detection/workflows/CI/badge.svg)
+![Tests](https://github.com/or4k2l/enhanced-audio-anomaly-detection/workflows/Tests/badge.svg)
 ![Python Version](https://img.shields.io/badge/python-3.8%2B-blue)
+![Code Style](https://img.shields.io/badge/code%20style-black-000000.svg)
 ![License](https://img.shields.io/badge/license-MIT-green)
+
+---
+
+## 🏆 Best Result
+
+**Pump: 0.874 AUC** (beats sklearn 0.815, AST-only 0.799)
+- **Method**: GMM-16 on hybrid features
+- **Features**: 1723-dim (768 AST embeddings + 955 classical audio features)
+- **Improvement**: +5.9% over baseline
+
+---
+
+## 📊 Key Results
+
+| Method | Fan | Pump | Slider | Valve | ToyCar | ToyConv | **Avg** |
+|--------|-----|------|--------|-------|--------|---------|---------|
+| Baseline GMM | 0.832 | 0.815 | 0.821 | 0.814 | 0.739 | 0.620 | **0.773** |
+| CAE | 0.549 | 0.568 | 0.713 | 0.526 | 0.765 | 0.598 | **0.620** |
+| AST Only | 0.616 | 0.799 | 0.904 | 0.756 | 0.661 | 0.601 | **0.723** |
+| **Hybrid Ensemble** | 0.651 | **0.874** | 0.870 | 0.779 | 0.751 | 0.594 | **0.753** |
+
+---
+
+## ⚡ Quick Start
+
+```bash
+pip install -e .
+
+# Train hybrid ensemble on Pump
+python scripts/train_hybrid.py \
+    --train_dir data/pump/train \
+    --test_dir data/pump/test \
+    --machine pump --method gmm --n_components 16 \
+    --output models/pump_hybrid_gmm16.pkl
+
+# Score a new audio file
+python scripts/inference.py \
+    --model models/pump_hybrid_gmm16.pkl \
+    --audio test_sample.wav
+# → Anomaly score: 0.823 (likely anomaly)
+```
+
+---
+
+## 🏗️ Architecture
+
+The system uses a **3-component hybrid pipeline**:
+
+```
+Raw Audio → [AST Embedding (768-dim)] ─┐
+                                        ├─→ Concat (1723-dim) → HybridDetector → Score
+Raw Audio → [Classical Features (955-dim)] ─┘
+```
+
+1. **Audio Spectrogram Transformer** (`src/models/ast_extractor.py`): Extracts semantic 768-dim embeddings using `MIT/ast-finetuned-audioset-10-10-0.4593`
+2. **Classical Features** (`src/models/classical_features.py`): Extracts 955-dim handcrafted features (mel-spectrogram stats, MFCCs, spectral descriptors, temporal features)
+3. **Hybrid Ensemble** (`src/models/ensemble.py`): Trains GMM/OCSVM/XGBoost on combined 1723-dim vectors
+
+---
+
+## 📁 Repository Structure
+
+```
+src/
+├── models/
+│   ├── cae.py               # Convolutional Autoencoder
+│   ├── ast_extractor.py     # Audio Spectrogram Transformer
+│   ├── classical_features.py # 955-dim librosa features
+│   └── ensemble.py          # Hybrid detector (GMM/OCSVM/XGBoost)
+├── data/
+│   ├── dataset.py           # DCASE data loading
+│   └── preprocessing.py     # Audio preprocessing
+├── evaluation/
+│   ├── metrics.py           # AUC, ROC, confusion matrix
+│   └── visualization.py     # Plotting utilities
+└── config.py                # Centralized configuration
+scripts/
+├── train_baseline.py        # Train sklearn GMM
+├── train_hybrid.py          # Train hybrid ensemble
+├── inference.py             # Production inference
+└── evaluate.py              # Evaluation script
+experiments/
+├── results/                 # JSON result files
+└── figures/                 # Result plots
+tests/                       # 166+ pytest tests
+docs/                        # ARCHITECTURE.md, EXPERIMENTS.md, API.md, DEPLOYMENT.md
+```
+
+---
+
+## 🧪 Experiment Summary
+
+See [`docs/EXPERIMENTS.md`](docs/EXPERIMENTS.md) for the full journey.
+
+### ✅ What Works
+- **GMM on hybrid features** → Best for Pump (0.874) and Slider (0.870)
+- **Classical GMM baseline** → Robust; 0.773 average AUC
+- **OCSVM on hybrid features** → Best for Fan (0.651)
+
+### ❌ What Doesn't Work
+- **Pure CAE**: Reconstructs anomalies too well (0.620 avg)
+- **Contrastive Learning**: Suppresses anomaly signal
+- **AST-only**: Domain mismatch with industrial machines
+
+---
+
+## 🎓 Lessons Learned
+
+1. ❌ **CAE reconstructs anomalies** — Deep autoencoders generalize and reconstruct anomalies
+2. ❌ **Contrastive Learning suppresses signal** — Pulls clusters together, including anomalies
+3. ❌ **AST has domain mismatch** — AudioSet ≠ industrial machines
+4. ✅ **Hybrid combines complementary strengths** — AST (semantics) + classical (acoustics)
+5. ✅ **GMM on rich features is robust** — Strong across most machine types
+6. ✅ **Per-machine method selection matters** — No single best method for all machines
+
+---
 
 ## 🚀 Features
 
@@ -518,10 +636,25 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🙏 Acknowledgments
 
+- DCASE 2020 Task 2 Challenge for the benchmark dataset
+- MIT CSAIL for the pretrained Audio Spectrogram Transformer
+- Hugging Face for the Transformers library
 - scikit-learn for machine learning algorithms
-- XGBoost for gradient boosting
 - librosa for audio processing
+- XGBoost for gradient boosting
 - imbalanced-learn for SMOTE implementation
+
+## 📖 Citation
+
+```bibtex
+@software{enhanced_audio_anomaly_2024,
+  author = {or4k2l},
+  title = {Enhanced Audio Anomaly Detection},
+  url = {https://github.com/or4k2l/enhanced-audio-anomaly-detection},
+  year = {2024},
+  note = {Hybrid AST + Classical GMM achieving 0.874 AUC on DCASE 2020 Pump}
+}
+```
 
 ## 📧 Support
 

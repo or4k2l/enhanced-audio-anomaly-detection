@@ -111,3 +111,58 @@ class TestAudioFeatureExtractor:
         assert "mel_spec_mean" in features
         assert features["mel_spec_mean"].shape[0] == n_mels
         assert not np.isnan(features["mel_spec_mean"]).any()
+
+
+# ── New tests for models.classical_features ───────────────────────────────
+
+
+from models.classical_features import (  # noqa: E402
+    ClassicalFeatureExtractor,
+    extract_classical_features,
+)
+
+
+class TestExtractClassicalFeatures:
+    """Tests for the 955-dim classical feature extractor."""
+
+    def test_output_shape(self):
+        wave = np.random.randn(16000 * 10).astype(np.float32)
+        feat = extract_classical_features(wave)
+        assert feat.shape == (955,)
+
+    def test_no_nan_or_inf(self):
+        wave = np.random.randn(16000 * 10).astype(np.float32)
+        feat = extract_classical_features(wave)
+        assert np.isfinite(feat).all()
+
+    def test_silent_audio(self):
+        wave = np.zeros(16000 * 5, dtype=np.float32)
+        feat = extract_classical_features(wave)
+        assert feat.shape == (955,)
+        assert np.isfinite(feat).all()
+
+    def test_short_audio(self):
+        wave = np.random.randn(4096).astype(np.float32)
+        feat = extract_classical_features(wave)
+        assert feat.shape == (955,)
+        assert np.isfinite(feat).all()
+
+    def test_deterministic(self):
+        rng = np.random.default_rng(0)
+        wave = rng.standard_normal(16000 * 5).astype(np.float32)
+        feat1 = extract_classical_features(wave)
+        feat2 = extract_classical_features(wave)
+        np.testing.assert_array_equal(feat1, feat2)
+
+    def test_classical_feature_extractor_class(self):
+        extractor = ClassicalFeatureExtractor(sr=16000)
+        wave = np.random.randn(16000 * 5).astype(np.float32)
+        features = extractor.transform(wave)
+        assert features.shape == (955,)
+        assert extractor.n_features == 955
+
+    def test_batch_extraction(self):
+        extractor = ClassicalFeatureExtractor(sr=16000)
+        waves = [np.random.randn(16000 * 3).astype(np.float32) for _ in range(3)]
+        result = extractor.transform_batch(waves)
+        assert result.shape == (3, 955)

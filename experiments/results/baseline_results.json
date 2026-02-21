@@ -1,0 +1,13 @@
+{
+  "method": "sklearn GMM",
+  "features": "classical (MFCC, spectral, temporal)",
+  "results": {
+    "fan": 0.832,
+    "pump": 0.815,
+    "slider": 0.821,
+    "valve": 0.814,
+    "ToyCar": 0.739,
+    "ToyConveyor": 0.620,
+    "average": 0.773
+  }
+}

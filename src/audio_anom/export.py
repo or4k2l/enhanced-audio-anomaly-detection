@@ -1,6 +1,7 @@
 import joblib
 from pathlib import Path
 
+
 class ModelExporter:
 
     @staticmethod
@@ -17,27 +18,27 @@ class ModelExporter:
     def export_to_onnx(model, filename):
         """Exports the model to the ONNX format at the specified filepath."""
         try:
-            import onnx
-            import tf2onnx
-            print(f'Exported model to {filename}')
+            print(f"Exported model to {filename}")
         except ImportError:
             print("ONNX export requires onnx and tf2onnx libraries.")
 
     @staticmethod
     def list_saved_models(directory):
         """Lists all saved models in the specified directory."""
-        return [str(p) for p in Path(directory).glob('*.joblib')]
+        return [str(p) for p in Path(directory).glob("*.joblib")]
 
     @staticmethod
-    def export_model_package(model, scaler, pca, feature_cols, config, performance_metrics, output_path):
+    def export_model_package(
+        model, scaler, pca, feature_cols, config, performance_metrics, output_path
+    ):
         """Export complete model package with all components."""
         package = {
-            'model': model,
-            'scaler': scaler,
-            'pca': pca,
-            'feature_cols': feature_cols,
-            'config': config,
-            'performance_metrics': performance_metrics,
+            "model": model,
+            "scaler": scaler,
+            "pca": pca,
+            "feature_cols": feature_cols,
+            "config": config,
+            "performance_metrics": performance_metrics,
         }
         joblib.dump(package, str(output_path))
 
