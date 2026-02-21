@@ -17,6 +17,8 @@ A production-ready machine learning system for detecting anomalies in industrial
 - **Features**: 1723-dim (768 AST embeddings + 955 classical audio features)
 - **Improvement**: +5.9% over baseline
 
+<img width="1389" height="690" alt="Herunterladen (16)" src="https://github.com/user-attachments/assets/c205146c-3fe0-401c-9be0-7aa08611b5e0" />
+
 ---
 
 ## 📊 Key Results
