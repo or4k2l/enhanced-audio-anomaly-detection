@@ -650,7 +650,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ```bibtex
 @software{enhanced_audio_anomaly_2024,
-  author = {or4k2l},
+  author = {Yahya Akbay},
   title = {Enhanced Audio Anomaly Detection},
   url = {https://github.com/or4k2l/enhanced-audio-anomaly-detection},
   year = {2024},
