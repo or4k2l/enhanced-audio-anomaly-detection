@@ -653,7 +653,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
   author = {Akbay, Yahya},
   title = {Enhanced Audio Anomaly Detection},
   url = {https://github.com/or4k2l/enhanced-audio-anomaly-detection},
-  year = {2024},
+  year = {2025},
   note = {Hybrid AST + Classical GMM achieving 0.874 AUC on DCASE 2020 Pump}
 }
 ```
