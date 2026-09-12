@@ -16,11 +16,21 @@ This guide will help you get started with the Enhanced Audio Anomaly Detection s
    source venv/bin/activate  # On Windows: venv\Scripts\activate
    ```
 
-3. **Install dependencies:**
+3. **Install runtime dependencies:**
    ```bash
    pip install -r requirements.txt
    pip install -e .
    ```
+
+   For tests and formatting checks, install the separate development
+   dependencies instead:
+   ```bash
+   pip install -r requirements-dev.txt
+   pip install -e .
+   ```
+
+   CI validates Python 3.10–3.12. For reproducible experiments, follow
+   [Reproducibility](REPRODUCIBILITY.md).
 
 ## Basic Usage
 

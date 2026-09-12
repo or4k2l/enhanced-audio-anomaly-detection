@@ -1,27 +1,36 @@
 # Enhanced Audio Anomaly Detection
 
-A production-ready machine learning system for detecting anomalies in industrial machine audio using a hybrid ensemble of pretrained transformer embeddings and classical signal processing features.
+An experimental machine-learning system for industrial audio anomaly detection
+using pretrained transformer embeddings and classical signal-processing
+features. See [Reproducibility](docs/REPRODUCIBILITY.md) for supported
+environments, benchmark scope, and how to record a real-data run.
 
 ![CI](https://github.com/or4k2l/enhanced-audio-anomaly-detection/workflows/CI/badge.svg)
 ![Tests](https://github.com/or4k2l/enhanced-audio-anomaly-detection/workflows/Tests/badge.svg)
-![Python Version](https://img.shields.io/badge/python-3.8%2B-blue)
+![Python Version](https://img.shields.io/badge/python-3.10%2B-blue)
 ![Code Style](https://img.shields.io/badge/code%20style-black-000000.svg)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
 ---
 
-## 🏆 Best Result
+## 🏆 Recorded Hybrid Experiment
 
-**Pump: 0.874 AUC** (beats sklearn 0.815, AST-only 0.799)
+**Pump: 0.874 AUC** (compared with the recorded classical GMM result of 0.815
+and AST-only result of 0.799)
 - **Method**: GMM-16 on hybrid features
 - **Features**: 1723-dim (768 AST embeddings + 955 classical audio features)
-- **Improvement**: +5.9% over baseline
+- **Improvement**: +0.059 AUC over the recorded classical GMM result
 
 <img width="1389" height="690" alt="Herunterladen (16)" src="https://github.com/user-attachments/assets/c205146c-3fe0-401c-9be0-7aa08611b5e0" />
 
 ---
 
-## 📊 Key Results
+## 📊 Recorded Experiment Summaries
+
+These values are recorded summaries in `experiments/results/`. The dataset
+revision, exact split, and resolved environment were not preserved with these
+historical outputs, so they are not directly reproducible benchmark claims.
+They must not be compared with the synthetic DCASE-shaped demonstration below.
 
 | Method | Fan | Pump | Slider | Valve | ToyCar | ToyConv | **Avg** |
 |--------|-----|------|--------|-------|--------|---------|---------|
@@ -132,24 +141,24 @@ See [`docs/EXPERIMENTS.md`](docs/EXPERIMENTS.md) for the full journey.
 - **Advanced Feature Extraction**: Mel spectrograms, MFCCs, statistical features
 - **Multiple ML Models**: Random Forest with GridSearchCV, XGBoost with auto-balancing
 - **Comprehensive Preprocessing**: StandardScaler, PCA (dimensionality reduction), SMOTE (class imbalance handling)
-- **Production-Ready**: Centralized configuration, comprehensive logging, model persistence
+- **Engineering foundations**: Centralized configuration, logging, model persistence
 - **Rich Visualizations**: Confusion matrices, ROC curves, feature importance, model comparison
 - **Complete Pipeline**: Training scripts, evaluation tools, inference examples
 
 ## 📊 PERFORMANCE HIGHLIGHTS ⭐⭐⭐
 
-### Real-World Validation on DCASE 2020 Task 2
+### Historical Synthetic DCASE-shaped Demonstration
 <img width="1389" height="490" alt="Herunterladen (5)" src="https://github.com/user-attachments/assets/90e6c7fd-a8b4-477a-9172-be1911bcdadb" />
-**Your System Achieves:**
-- ✅ **+51% Better** than random guessing (AUC 0.755 vs 0.50)
-- ✅ **+7.9% Better** than DC2020 baseline (AUC 0.755 vs 0.70)
-- ✅ **Production-Ready** on real industrial machines (10,000+ audio files tested)
+This historical demonstration used synthetic, DCASE-shaped features. It is
+useful for exercising the pipeline but is **not** validation on DCASE 2020
+audio, a comparison with the official baseline, or evidence of production
+performance. See [the synthetic-evaluation report](docs/DC2020_RESULTS.md).
 
-### Best Method: Local Outlier Factor (LOF)
+### Synthetic Demonstration: Local Outlier Factor (LOF)
 <img width="1189" height="790" alt="Herunterladen (3)" src="https://github.com/user-attachments/assets/27dbc58c-4740-456e-b8a2-27ffe68a5a7e" />
-**Average Performance:** 0.7734 AUC across 6 different machine types
-- 11.8% better than Isolation Forest
-- 23.8% better than Elliptic Envelope
+**Illustrative performance:** 0.7554 AUC across six synthetic machine-shaped
+datasets. This result is separate from the recorded hybrid and classical
+experiment summaries above.
 
 ### Robust Performance Across Machines
 <img width="1381" height="690" alt="Herunterladen (4)" src="https://github.com/user-attachments/assets/60ad8c16-0d00-4101-821c-f3c6eee2bf75" />
@@ -226,7 +235,7 @@ See [docs/EMBEDDING_ANOMALY_DETECTION.md](docs/EMBEDDING_ANOMALY_DETECTION.md) f
 ## 📦 Installation
 
 ### Requirements
-- Python 3.8+
+- Python 3.10+
 - System dependencies: `libsndfile1`, `ffmpeg`
 
 ### Quick Install
@@ -380,7 +389,7 @@ Advanced unsupervised anomaly detection system trained on real-world DCASE 2020 
 
 ### Key Features
 
-- **3 Production-Ready Methods**: Local Outlier Factor, Isolation Forest, Elliptic Envelope
+- **3 implemented methods**: Local Outlier Factor, Isolation Forest, Elliptic Envelope
 - **Real-World Validated**: 10,000+ audio files from 6 industrial machines
 - **Strong Performance**: AUC 0.755, F1 0.704 (beats baseline!)
 - **No Labels Required**: Trains on normal sounds only

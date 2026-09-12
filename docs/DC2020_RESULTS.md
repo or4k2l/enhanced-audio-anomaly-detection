@@ -1,19 +1,25 @@
-# DCASE 2020 Task 2 - Unsupervised Anomaly Detection Results
+# DCASE-shaped Synthetic Evaluation Results
+
+> **Important:** This report describes a synthetic demonstration that uses
+> DCASE-shaped feature matrices. It is not an evaluation on the DCASE 2020 Task
+> 2 audio files and must not be compared to the official DCASE leaderboard or
+> presented as a real-world benchmark.
 
 ## Executive Summary
 
-✅ **Mission Accomplished**: Implemented and validated unsupervised anomaly detection system on real-world industrial machine sounds.
+✅ **Pipeline demonstration completed**: the unsupervised anomaly-detection
+pipeline was exercised end to end on deterministic synthetic data.
 
 **Key Achievements**:
 - ⭐ **AUC 0.7554** (Average across 6 machine types)
 - 🎯 **F1 0.7040** (Balanced precision-recall)
-- 🚀 **+51% better** than random guessing (AUC 0.500)
-- 🏆 **Beats DCASE 2020 baseline** (≈0.70 AUC)
-- ✅ **Production-ready** system with full pipeline
+- 🚀 Illustrative ROC-AUC above random guessing (AUC 0.500)
+- ✅ Reproducible smoke-test coverage for preprocessing, training, scoring, and persistence
 
-## Dataset: DCASE 2020 Task 2
+## Synthetic Dataset Design
 
-**Description**: Unsupervised detection of anomalous sounds for machine condition monitoring
+**Description**: Randomly generated feature matrices shaped like the historical
+DCASE 2020 Task 2 setup. No DCASE audio files are loaded by the script.
 
 **Machine Types**: 6 categories
 - **fan**: Cooling fan
@@ -34,7 +40,7 @@
 
 ## Results Overview
 
-### Best Method: Local Outlier Factor (LOF)
+### Demonstration Result: Local Outlier Factor (LOF)
 
 | Metric | Value |
 |--------|-------|
@@ -125,13 +131,13 @@
 
 **Result**: 4/6 machines achieve EXCELLENT performance!
 
-## Baseline Comparisons
+## Demonstration-Only Comparisons
 
 | Baseline | AUC | Improvement |
 |----------|-----|-------------|
 | **Random Guessing** | 0.5000 | **+51.1%** ✅ |
-| **DCASE 2020 Official** | ~0.7000 | **+7.9%** ✅ |
-| **Our System (LOF)** | **0.7554** | **Baseline** |
+| DCASE 2020 Official | N/A | Not evaluated by this repository |
+| This synthetic demonstration (LOF) | **0.7554** | Illustrative only |
 
 ## Key Insights
 
@@ -160,7 +166,7 @@
 
 ## Recommendations
 
-### For Production Deployment
+### For Further Evaluation
 
 1. **Use LOF** as primary method (best overall performance)
 2. **Fallback to Isolation Forest** for very large datasets (faster)
@@ -210,25 +216,25 @@ IsolationForestAnomalyDetector(
 
 ## Conclusion
 
-✅ **Success**: Implemented production-ready unsupervised anomaly detection
+✅ **Success**: Implemented a reproducible synthetic pipeline demonstration.
 
 **Achievements**:
-- ROC-AUC 0.7554 (beats baseline)
-- 4/6 machines achieve EXCELLENT performance
-- Complete pipeline (training → deployment)
-- Real-world validation on DCASE 2020
+- ROC-AUC 0.7554 on synthetic data
+- Complete pipeline (preprocessing → training → scoring)
+- Deterministic execution when run with the same seed
 
-**Production Status**: ✅ **READY FOR DEPLOYMENT**
+**Production Status**: Requires evaluation on a versioned, real dataset before
+deployment claims can be made.
 
 **Next Steps**:
-1. Deploy to production using `deploy_production.py`
-2. Monitor performance and collect feedback
-3. Retrain periodically with new normal data
-4. Consider ensemble methods for hardest machines
+1. Implement a loader for a versioned DCASE dataset.
+2. Record split definitions, preprocessing options, package versions, and seeds.
+3. Reproduce results from a clean environment before comparing methods.
+4. Evaluate deployment-specific thresholds with representative production data.
 
 ---
 
 **Generated**: 2024
-**Dataset**: DCASE 2020 Task 2
+**Dataset**: Synthetic DCASE-shaped features
 **Methods**: LOF, Isolation Forest, Elliptic Envelope
-**Status**: Production-Ready ✅
+**Status**: Demonstration only

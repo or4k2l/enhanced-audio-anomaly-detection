@@ -2,7 +2,7 @@
 
 ## Prerequisites
 
-- Python 3.8+
+- Python 3.10+
 - System: `libsndfile1`, `ffmpeg` (for audio loading)
 - GPU: Optional (AST runs fine on CPU for batch < 64)
 

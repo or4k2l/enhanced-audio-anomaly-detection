@@ -31,13 +31,13 @@ setup(
         "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: 3.12",
     ],
-    python_requires=">=3.8",
+    python_requires=">=3.10",
     install_requires=requirements,
     extras_require={
         "dev": [
-            "black",
-            "flake8",
-            "pytest",
+            "black>=23,<26",
+            "flake8>=6,<8",
+            "pytest>=7,<10",
         ],
         "tensorflow": [
             "tensorflow",
